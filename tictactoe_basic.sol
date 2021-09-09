@@ -53,11 +53,16 @@ contract TicTacToe {
             board.status = Status.IN_PROGRESS; 
             
             //TODO Randomised
-            board.other_player_symbol = Symbol.X;
-            board.host_player_symbol = Symbol.O;
-            
-            int move = bot_move(board.gameboard, board.other_player_symbol, board.host_player_symbol);
-            board.gameboard[uint256(move)] = board.other_player_symbol;
+            if (generate_random_start() == 1) {
+                board.other_player_symbol = Symbol.X;
+                board.host_player_symbol = Symbol.O;
+                
+                int move = bot_move(board.gameboard, board.other_player_symbol, board.host_player_symbol);
+                board.gameboard[uint256(move)] = board.other_player_symbol;
+            } else {
+                board.other_player_symbol = Symbol.O;
+                board.host_player_symbol = Symbol.X;
+            }
         }
         
         return true;
@@ -194,5 +199,9 @@ contract TicTacToe {
             }
         }
         return false;
+    }
+    
+    function generate_random_start() internal view returns(uint) {
+        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, players))) % 2;
     }
 } 
