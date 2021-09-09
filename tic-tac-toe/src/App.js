@@ -93,7 +93,7 @@ function App() {
         }}
       />
       {/* <Button onClick={startGame}></Button> */}
-      <Button onClick={makeMove}></Button>
+      {/* <Button onClick={makeMove}></Button> */}
       <VStack mt={10}>
         <Heading>Decentralised Tic Tac Toe!</Heading>
       </VStack>
