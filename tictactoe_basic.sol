@@ -38,6 +38,7 @@ contract TicTacToe {
     mapping(address => PlayerBoard) public gameboards;
     mapping(address => uint256) public scoreboard;
     mapping (uint256 => Player) public leaderboard;
+    mapping(uint256 => gameID) public scoreboard;
     
     address[] public players;
 
@@ -79,6 +80,40 @@ contract TicTacToe {
     function get_board() public view returns (Symbol[9] memory) {
         return gameboards[msg.sender].gameboard;
     }
+    
+    function newGame() public returns (uint256 gameId) {
+        Game memory game;
+        game.playerTurn = players.host_player;
+        numberOfGames++;
+        games[numberOfGames] = game;
+        emit GameCreated(nrOfGames, msg.sender);
+        return numberOfGames;
+
+    }
+
+    function joinGame(uint256 _gameId) public returns (bool success, string reason) {
+
+        if (_gameId > numberOfGames) {
+            return (false, "No such game exists.");
+        }
+        address player = msg.sender;
+        Game storage game = games[_gameId];
+        // Assign the new player to slot 1 if it is still available.
+        if (game.host_player == address(0)) {
+            game.host_player = player;
+            emit PlayerJoinedGame(_gameId, player, uint8(players.host_player));
+            return (true, "Joined as host player");
+        }
+        // If slot 1 is taken, assign the new player to slot 2 if it is still available.
+        if (game.other_player == address(0)) {
+            game.other_player = player;
+            emit PlayerJoinedGame(_gameId, player, uint8(players.other_player));
+            return (true, "Joined as other player. Player one can make the first move.");
+
+        }
+        return (false, "All seats taken.");
+    }
+
 
     function bot_move(Symbol[9] memory gameboard, Symbol bot_symbol, Symbol player_symbol) pure internal returns(int) {
         
