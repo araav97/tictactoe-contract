@@ -206,17 +206,6 @@ contract TicTacToe {
         // Make the move
         board.gameboard[position] = board.host_player_symbol;
         
-           //Function to transfer the wager to winner 
-        function wager_transfer() {
-            if(board.status = Status.HOST_PLAYER_WON) { //Player 1 wins
-                host_player.transfer(wagers_[host_player]);
-            } else if (board.status = Status.OTHER_PLAYER_WON) { //Player 2 wins
-                other_player.transfer(wagers_[other_player]);
-            } else if (dr){ //Game was a Draw
-                
-            }
-        }
-        
         //check win
         if (evaluate(board.gameboard, board.host_player_symbol, board.other_player_symbol) == 1) {
             board.status = Status.HOST_PLAYER_WON;
