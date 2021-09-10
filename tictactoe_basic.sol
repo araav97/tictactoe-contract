@@ -41,7 +41,29 @@ contract TicTacToe {
     mapping(uint256 => gameID) public scoreboard;
     
     address[] public players;
-
+    
+    //Function to check if the wager sum is evenly matched
+    constructor() public payable {
+        require(msg.value > 0, "Must bet a positive amount");
+    }
+    
+    function viewBet() public view returns(uint) {
+        return address(this).balance;
+    }
+    
+    function matchBet() external payable {
+        require(msg.value == address(this).balance, "Must match original bet");
+    }
+    
+    //Adding a storage value for the wager
+    mapping(address => uint256) public wagers_;
+    
+    //Function to set the wager 
+    function placeWager() external payable {
+    require(msg.sender == host_player || msg.sender == other_player);
+    wagers_[msg.sender] = msg.value;
+    }
+    
     function start_game(bool isBot) public returns (bool) {
         
         gameboards[msg.sender] = PlayerBoard({
@@ -189,6 +211,7 @@ contract TicTacToe {
             board.status = Status.HOST_PLAYER_WON;
             update_scoreboard();
             update_leaderboard();
+            host_player.transfer(wagers_[host_player]); //Host player wins - Wager goes to host player
             return "win";
         } else if (is_moves_left(board.gameboard) == false) {
             return "draw";
@@ -200,6 +223,7 @@ contract TicTacToe {
             board.gameboard[uint256(move)] = board.other_player_symbol;
             if (evaluate(gameboards[msg.sender].gameboard, board.other_player_symbol, board.host_player_symbol) == 1) {
                 board.status = Status.OTHER_PLAYER_WON;
+                other_player.transfer(wagers_[other_player]); //Other player wins - Wager goes to other player
                 return "lost";
             }
             
