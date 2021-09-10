@@ -29,8 +29,16 @@ contract TicTacToe {
         Symbol[9] gameboard;
     }
     
+    struct Player { //keep it to top 10?
+        address player;
+        uint256 score;
+    }
+    
     // mapping to store the player's board
     mapping(address => PlayerBoard) public gameboards;
+    mapping(address => uint256) public scoreboard;
+    mapping (uint256 => Player) public leaderboard;
+    
     address[] public players;
 
     function start_game(bool isBot) public returns (bool) {
@@ -144,6 +152,8 @@ contract TicTacToe {
         //check win
         if (evaluate(board.gameboard, board.host_player_symbol, board.other_player_symbol) == 1) {
             board.status = Status.HOST_PLAYER_WON;
+            update_scoreboard();
+            update_leaderboard();
             return "win";
         } else if (is_moves_left(board.gameboard) == false) {
             return "draw";
@@ -169,7 +179,7 @@ contract TicTacToe {
     
     
     function evaluate(Symbol[9] memory gameboard, Symbol player, Symbol opponent) internal pure returns(int) {
-                uint8[3][8] memory winning_states = [
+        uint8[3][8] memory winning_states = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],
             [0, 3, 6], [1, 4, 7], [2, 5, 8],
             [0, 4, 8], [6, 4, 2]
@@ -203,5 +213,43 @@ contract TicTacToe {
     
     function generate_random_start() internal view returns(uint) {
         return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, players))) % 2;
+    }
+    
+    
+    //=============leaderboard=============
+    function update_scoreboard() public {
+        scoreboard[msg.sender] += 1;
+    }
+    
+    function get_score(address player) public view returns(uint256) {
+        return scoreboard[player];
+    }
+    
+    function update_leaderboard() public {
+        uint maxLen = 10;
+        uint256 player_score = get_score(msg.sender);
+
+        if (player_score > leaderboard[maxLen-1].score) {
+            for (uint i = 0; i < maxLen; i ++) {
+                if (player_score > leaderboard[i].score) {
+                    if (msg.sender == leaderboard[i].player) {
+                        leaderboard[i].score = player_score;
+                    } else { //shift down
+                        Player memory curr_player = leaderboard[i];
+                        for (uint j = i + 1; j < maxLen + 1; j ++) {
+                            Player memory next_player = leaderboard[j];
+                            leaderboard[j] = curr_player;
+                            curr_player = next_player;
+                        }
+                        
+                        leaderboard[i] = Player({
+                            player: msg.sender,
+                            score: player_score
+                        });
+                    }
+                }
+            }
+            delete leaderboard[maxLen];
+        }
     }
 } 
