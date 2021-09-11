@@ -10,7 +10,7 @@ pragma solidity >=0.7.0 <0.9.0;
 contract TicTacToe {
     
     enum Symbol { EMPTY, X, O }
-    enum Status { WAITING_FOR_PLAYER, IN_PROGRESS, PLAYER_ONE_WON, PLAYER_TWO_WON, BOT_WON, DRAW }
+    enum Status { WAITING_FOR_PLAYER, PLAYER_ONE_MOVE, PLAYER_TWO_MOVE, PLAYER_ONE_WON, PLAYER_TWO_WON, BOT_WON, DRAW }
     enum GameType { BOT, PLAYER }
     
     uint256 greenPot;
@@ -33,20 +33,62 @@ contract TicTacToe {
         Symbol[9] board;
     }
     
-    constructor() public {
-        greenPot = 0;
+    struct Player {
+        address player;
+        uint256 score;
     }
     
-    function createBotGame() public returns (bool) {
+    //constructor() public {
+    //    greenPot = 0;
+    //}
         
-    }
+    mapping(address => uint256) public players;     // mapping to store player and the gameId
+    mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
+    mapping(address => uint256) public scoreboard;
+    mapping (uint256 => Player) public leaderboard;
     
-    function createPlayerGame(bool isBot) public returns (bool) {
-// 
-    }
+    address[] public playersArray;
+    uint256[] public gamesArray;
     
+    function createGame(uint256 _bet, bool isBot) public {
+        uint256 gameId = gamesArray.length;
+        gamesArray.push(gameId);
+        players[msg.sender] = gameId;
+
+        games[gameId] = Game({
+            playerOne: msg.sender,
+            playerTwo: address(0),
+            playerOneSymbol: Symbol.X,
+            playerTwoSymbol: Symbol.EMPTY,
+            gameStatus: Status.WAITING_FOR_PLAYER,
+            gameType: GameType.PLAYER,
+            bet: _bet,
+            board: [Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY, Symbol.EMPTY]
+        });
+        
+        Game storage board = games[gameId];
+        
+        if (isBot) {
+            board.gameType = GameType.BOT;
+            board.playerOneSymbol = Symbol.X;
+            board.playerTwoSymbol = Symbol.O;
+            
+            //TODO Randomised
+            if (generateRandomStart() == 1) { //bot starts, bot is player two
+                int move = botMove(board.board, board.playerTwoSymbol, board.playerOneSymbol);
+                board.board[uint256(move)] = board.playerTwoSymbol;
+                board.gameStatus = Status.PLAYER_TWO_MOVE;
+            } else {
+                board.gameStatus = Status.PLAYER_ONE_MOVE;
+            }
+        }        
+    }
     
     //Helper functions
+    function generateRandomStart() internal view returns(uint) {
+        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, playersArray))) % 2;
+    }
+    
     function botMove(Symbol[9] memory board, Symbol botSymbol, Symbol playerSymbol) pure internal returns(int) {
         
         // Put centre if possible
@@ -86,7 +128,7 @@ contract TicTacToe {
         
         // Place it somewhere along the path of the opponents move
         for(int i = 0; i < int(board.length); i++) {
-            if (board[uint256(i)] == player_symbol) {
+            if (board[uint256(i)] == playerSymbol) {
                 for (int j = -4; i < 5; j++) {
                     if (j + i >= 0 && j + i < 9) {
                         return j + i;
@@ -131,18 +173,16 @@ contract TicTacToe {
         return false;
     }
     
-    
     function makeMove(uint8 position) public returns (string memory) {
+        uint256 gameID = players[msg.sender];
+        Game storage _game = games[gameID];
         
         // Check that game is still in IN_PROGRESS
-        require(board.status == Status.IN_PROGRESS);
+        require(_game.gameStatus == Status.PLAYER_ONE_MOVE || _game.gameStatus == Status.PLAYER_TWO_MOVE);
         
         // Check if it is a valid position
         require(position >= 0 && position <= 8);
-        
-        uint256 gameID = players[msg.sender];
-        Game storage _game = Games[gameID];
-        
+
         Symbol playerSymbol;
         Symbol otherPlayerSymbol;
         
@@ -159,26 +199,24 @@ contract TicTacToe {
         require(boardPosition == Symbol.EMPTY);
         
         // Make the move
-        _game.board[position] = board.playerSymbol;
+        _game.board[position] = playerSymbol;
         
          if (_game.gameType == GameType.BOT) {
-             
             //bot move
             int move = botMove(_game.board, otherPlayerSymbol, playerSymbol);
             _game.board[uint256(move)] = otherPlayerSymbol;
             
             if (evaluate(_game.board, otherPlayerSymbol, playerSymbol) == 1) {
-                board.status = Status.BOT_WON;
-                other_player.transfer(wagers_[other_player]); //Other player wins - Wager goes to other player
+                _game.gameStatus = Status.BOT_WON;
+                //other_player.transfer(wagers_[other_player]); //Other player wins - Wager goes to other player
                 return "lost";
             }
             
             if (isMovesLeft(_game.board) == false) {
-                board.status = Status.DRAW;
+                _game.gameStatus = Status.DRAW;
                 return "draw";
             }
-        } else if (_game.gameType == GameType.Player) {
-            
+        } else if (_game.gameType == GameType.PLAYER) {
             //check win
             if (evaluate(_game.board, playerSymbol, otherPlayerSymbol) == 1) {
                 
@@ -189,9 +227,8 @@ contract TicTacToe {
                     _game.gameStatus = Status.PLAYER_TWO_WON;
                 }
     
-                //TODO
-                // update_scoreboard();
-                // update_leaderboard();
+                update_scoreboard();
+                update_leaderboard();
                 
                 //TODO 
                 // host_player.transfer(wagers_[host_player]); //Host player wins - Wager goes to host player
@@ -199,14 +236,109 @@ contract TicTacToe {
             }
                 
             if (isMovesLeft(_game.board) == false) {
-                board.status = Status.DRAW;
+                _game.gameStatus = Status.DRAW;
                 
                 //We take money
                 return "draw";
             }
         }
-        
         return "next move";
     }
     
+    
+    function joinGame(uint256 _gameId) public returns (bool success, string memory reason) {
+        if (gamesArray.length == 0 || _gameId > gamesArray.length) {
+            return (false, "No such game exists.");
+        }
+        
+        address player = msg.sender;
+        Game storage game = games[_gameId];
+        
+        if (player == game.playerOne) {
+            return (false, "You can't play against yourself.");
+        }
+        
+        // Assign the new player to slot 2 if it is empty.
+        if (game.playerTwoSymbol == Symbol.EMPTY) {
+            game.playerTwo = player;
+            game.playerTwoSymbol = Symbol.O;
+            game.gameStatus = Status.PLAYER_ONE_MOVE;
+            //emit PlayerJoinedGame(_gameId, player, uint8(players.playerTwo));
+            return (true, "Joined as player Two player. Player one can make the first move.");
+        }
+        return (false, "All seats taken.");
+    }
+    
+    function getBoard() public view returns (Symbol[9] memory, uint256 symbol) {
+        uint256 playerSymbol;
+        uint256 gameId = players[msg.sender];
+        Game storage game = games[gameId];
+        
+        if (game.playerOne == msg.sender) {
+            playerSymbol = (game.playerOneSymbol == Symbol.X) ? 1: 0;
+        } else {
+            playerSymbol = (game.playerTwoSymbol == Symbol.X) ? 1: 0;
+        }
+        return (games[gameId].board, playerSymbol);
+    }
+    
+    function getNumofGames() public view returns (uint256) {
+        return gamesArray.length;
+    }
+    
+    function gameStats() public view returns (uint256 openGame, uint256 gameInProgress, uint256 gameOver) {
+        uint256 open = 0;
+        uint256 inProgress = 0;
+        uint256 over = 0;
+        
+        for (uint256 i = 0; i < gamesArray.length; i++) {
+            Game storage game = games[i];
+            if (game.gameStatus == Status.WAITING_FOR_PLAYER) {
+                open ++;
+            } else if (game.gameStatus == Status.PLAYER_ONE_MOVE || game.gameStatus == Status.PLAYER_TWO_MOVE) {
+                inProgress ++;
+            } else {
+                over ++;
+            }
+        }
+        return (open, inProgress, over);
+    }
+    
+    
+    //=============leaderboard=============
+    function update_scoreboard() public {
+        scoreboard[msg.sender] += 1;
+    }
+
+    function get_score(address player) public view returns(uint256) {
+        return scoreboard[player];
+    }
+    
+    function update_leaderboard() public {
+        uint maxLen = 10;
+        uint256 player_score = get_score(msg.sender);
+
+        if (player_score > leaderboard[maxLen-1].score) {
+            for (uint i = 0; i < maxLen; i ++) {
+                if (player_score > leaderboard[i].score) {
+                    if (msg.sender == leaderboard[i].player) {
+                        leaderboard[i].score = player_score;
+                    } else { //shift down
+                        Player memory curr_player = leaderboard[i];
+                        for (uint j = i + 1; j < maxLen + 1; j ++) {
+                            Player memory next_player = leaderboard[j];
+                            leaderboard[j] = curr_player;
+                            curr_player = next_player;
+                        }
+                        
+                        leaderboard[i] = Player({
+                            player: msg.sender,
+                            score: player_score
+                        });
+                    }
+                }
+            }
+            delete leaderboard[maxLen];
+        }
+    }
 }
