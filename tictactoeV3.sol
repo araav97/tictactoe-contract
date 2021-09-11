@@ -53,7 +53,7 @@ contract TicTacToe {
         if (board[4] == Symbol.EMPTY) {
             return 4;
         }
-        
+    
         for(int i = 0; i < int(board.length); i++) {
             if (board[uint256(i)] == Symbol.EMPTY) {
                 board[uint256(i)] = botSymbol;
