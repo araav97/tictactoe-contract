@@ -53,16 +53,17 @@ function App() {
 
   const startGame = async (t) => {
     t.preventDefault();
-    const gas = await ticTacToeContract.methods
-      .start_game(gameType === "Bot" ? true : false)
-      .estimateGas();
+    // const gas = await ticTacToeContract.methods
+    //   .start_game(gameType === "Bot" ? true : false)
+    //   .estimateGas();
     await ticTacToeContract.methods
       .start_game(gameType === "Bot" ? true : false)
       .send({
         from: web3.currentProvider.selectedAddress,
         gas,
       });
-    getBoard();
+    console.log("test");
+    // getBoard();
   };
 
   const makeMove = async (move) => {
@@ -92,7 +93,7 @@ function App() {
           handleChangeGameType(gameType, setGameType);
         }}
       />
-      {/* <Button onClick={startGame}></Button> */}
+      <Button onClick={startGame}></Button>
       {/* <Button onClick={makeMove}></Button> */}
       <VStack mt={10}>
         <Heading>Decentralised Tic Tac Toe!</Heading>
