@@ -18,7 +18,7 @@ contract TicTacToe {
     struct Game {
         // Players
         address playerOne; // Player 1 X
-        address playerTwo; // Player 2 other_player
+        address playerTwo; // Player 2 O
         
         // Symbol
         Symbol playerOneSymbol;
@@ -38,10 +38,11 @@ contract TicTacToe {
         uint256 score;
     }
     
-    //constructor() public {
-    //    greenPot = 0;
-    //}
-        
+    constructor() {
+        greenPot = 10;
+    }
+    
+    
     mapping(address => uint256) public players;     // mapping to store player and the gameId
     mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
     mapping(address => uint256) public scoreboard;
@@ -70,11 +71,9 @@ contract TicTacToe {
         
         if (isBot) {
             board.gameType = GameType.BOT;
-            board.playerOneSymbol = Symbol.X;
             board.playerTwoSymbol = Symbol.O;
             
-            //TODO Randomised
-            if (generateRandomStart() == 1) { //bot starts, bot is player two
+            if (generateRandomStart() == 1) { //bot starts
                 int move = botMove(board.board, board.playerTwoSymbol, board.playerOneSymbol);
                 board.board[uint256(move)] = board.playerTwoSymbol;
                 board.gameStatus = Status.PLAYER_TWO_MOVE;
@@ -84,7 +83,6 @@ contract TicTacToe {
         }        
     }
     
-    //Helper functions
     function generateRandomStart() internal view returns(uint) {
         return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, playersArray))) % 2;
     }
@@ -173,6 +171,7 @@ contract TicTacToe {
         return false;
     }
     
+    //TODO: check for bot make move after game is won
     function makeMove(uint8 position) public returns (string memory) {
         uint256 gameID = players[msg.sender];
         Game storage _game = games[gameID];
@@ -230,7 +229,7 @@ contract TicTacToe {
                 update_scoreboard();
                 update_leaderboard();
                 
-                //TODO 
+                //TODO: havent add in wagers
                 // host_player.transfer(wagers_[host_player]); //Host player wins - Wager goes to host player
                 return "win";
             }
@@ -244,7 +243,6 @@ contract TicTacToe {
         }
         return "next move";
     }
-    
     
     function joinGame(uint256 _gameId) public returns (bool success, string memory reason) {
         if (gamesArray.length == 0 || _gameId > gamesArray.length) {
@@ -269,19 +267,63 @@ contract TicTacToe {
         return (false, "All seats taken.");
     }
     
-    function getBoard() public view returns (Symbol[9] memory, uint256 symbol) {
-        uint256 playerSymbol;
+    function getBoard() public view returns (Symbol[9] memory, Symbol symbol, Status status) {
+        Symbol playerSymbol;
         uint256 gameId = players[msg.sender];
         Game storage game = games[gameId];
         
+        
+        playerSymbol = (game.playerOne == msg.sender) ? game.playerOneSymbol : game.playerTwoSymbol;
+        
+        /*
         if (game.playerOne == msg.sender) {
-            playerSymbol = (game.playerOneSymbol == Symbol.X) ? 1: 0;
+            playerSymbol = (game.playerOneSymbol == Symbol.X) ? 1: 2;
         } else {
-            playerSymbol = (game.playerTwoSymbol == Symbol.X) ? 1: 0;
+            playerSymbol = (game.playerTwoSymbol == Symbol.X) ? 1: 2;
         }
-        return (games[gameId].board, playerSymbol);
+        */
+        
+        return (games[gameId].board, playerSymbol, game.gameStatus);
     }
     
+    //=============leaderboard=============
+    function update_scoreboard() internal {
+        scoreboard[msg.sender] += 1;
+    }
+
+    function get_score(address player) public view returns(uint256) {
+        return scoreboard[player];
+    }
+    
+    function update_leaderboard() internal {
+        uint maxLen = 10;
+        uint256 player_score = get_score(msg.sender);
+
+        if (player_score > leaderboard[maxLen-1].score) {
+            for (uint i = 0; i < maxLen; i ++) {
+                if (player_score > leaderboard[i].score) {
+                    if (msg.sender == leaderboard[i].player) {
+                        leaderboard[i].score = player_score;
+                    } else { //shift down
+                        Player memory curr_player = leaderboard[i];
+                        for (uint j = i + 1; j < maxLen + 1; j ++) {
+                            Player memory next_player = leaderboard[j];
+                            leaderboard[j] = curr_player;
+                            curr_player = next_player;
+                        }
+                        leaderboard[i] = Player({
+                            player: msg.sender,
+                            score: player_score
+                        });
+                    }
+                }
+            }
+            delete leaderboard[maxLen];
+        }
+    }
+    
+    
+    //=============stats=============
     function getNumofGames() public view returns (uint256) {
         return gamesArray.length;
     }
@@ -305,40 +347,28 @@ contract TicTacToe {
     }
     
     
-    //=============leaderboard=============
-    function update_scoreboard() public {
-        scoreboard[msg.sender] += 1;
-    }
+    //TODO: change to 10 most recent games that are available
+    /*
+    function availGames() public view returns (uint256[] memory gameId, uint256[] memory bet, address[] memory playerOneId) {
+        uint256[] memory gameIds; //init size
+        uint256[] memory bets;
+        address[] memory playerOneIds;
 
-    function get_score(address player) public view returns(uint256) {
-        return scoreboard[player];
-    }
-    
-    function update_leaderboard() public {
-        uint maxLen = 10;
-        uint256 player_score = get_score(msg.sender);
-
-        if (player_score > leaderboard[maxLen-1].score) {
-            for (uint i = 0; i < maxLen; i ++) {
-                if (player_score > leaderboard[i].score) {
-                    if (msg.sender == leaderboard[i].player) {
-                        leaderboard[i].score = player_score;
-                    } else { //shift down
-                        Player memory curr_player = leaderboard[i];
-                        for (uint j = i + 1; j < maxLen + 1; j ++) {
-                            Player memory next_player = leaderboard[j];
-                            leaderboard[j] = curr_player;
-                            curr_player = next_player;
-                        }
-                        
-                        leaderboard[i] = Player({
-                            player: msg.sender,
-                            score: player_score
-                        });
-                    }
-                }
+        uint256 counter = 0;
+        for (uint256 i = 0; i < gamesArray.length; i++) {
+            Game storage game = games[i];
+            if (game.gameStatus == Status.WAITING_FOR_PLAYER) {
+                gameIds[counter] = i;
+                bets[counter] = game.bet;
+                playerOneIds[counter] = game.playerOne;
+                counter ++;
             }
-            delete leaderboard[maxLen];
         }
+        return (gameIds, bets, playerOneIds);        
+    }
+    */
+    
+    function getPotAmt() public view returns (uint256) {
+        return greenPot;
     }
 }
