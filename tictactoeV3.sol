@@ -497,7 +497,17 @@ contract TicTacToe {
         uint256[] memory bets = new uint256[](maxLen);
         address[] memory playerOneIds = new address[](maxLen);
 
-        for (uint256 i = gamesArray.length - 10; i < gamesArray.length; i++) {
+        uint256 noGames = 0;
+        uint256 maxGames = 0;
+        if (gamesArray.length < 10) {
+            noGames = 0;
+            maxGames = gamesArray.length;
+        } else {
+            noGames = gamesArray.length - 10;
+            maxGames = gamesArray.length;
+        }
+
+        for (uint256 i = noGames; i < maxGames; i++) {
             uint256 j = 0;
             Game storage game = games[i];
             if (
