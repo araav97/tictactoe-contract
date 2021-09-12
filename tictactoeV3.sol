@@ -36,8 +36,6 @@ contract TicTacToe {
         uint256 score;
     }
 
-    address payable public admin;                   // payable address to receive ether when players lose against bot
-
     mapping(address => uint256) public players;     // mapping to store player and the gameId
     mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
     mapping(address => uint256) public scoreboard;
@@ -51,9 +49,6 @@ contract TicTacToe {
         uint256 betAmt = _bet * (1 ether); //in wei
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
-        
-        //require(approveBet(betAmt));
-        //depositToPot(betAmt);
 
         games[gameId] = Game({
             playerOne: msg.sender,
@@ -338,37 +333,6 @@ contract TicTacToe {
         }
     }
     
-    
-    //TODO
-    //=============wager============= 
-    // Function to deposit Ether into this contract, call this function along with some Ether
-    function depositToPot() public payable {}
-    
-    function getPotAmt() public view returns (uint256) {
-        return address(admin).balance /(1 ether);
-    }    
-    
-    function getPlayerBalance(address player) external view returns(uint256) {
-        return player.balance / (1 ether) ;
-    }
-    
-    function approveBet(uint256 bet) public view returns (bool) {
-        if (address(this).balance >= bet) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    //send from contract to winner
-    function payOutWinnings(address payable _receiver, uint256 _amount) external { 
-        _receiver.transfer(_amount * (1 ether));
-    } 
-    
-    //send from player to contract
-    // function sendToPot() {
-        
-    // }
     
     //=============stats=============
     function getNumofGames() public view returns (uint256) {
