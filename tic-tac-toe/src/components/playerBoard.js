@@ -36,8 +36,8 @@ const handleSubmit = async (
     });
     getBoardFromChain(web3, contract, setBoard, setPlayerSymbol, toast);
     toast({
-      title: "Your Move.",
-      description: "The bot has made a move.",
+      title: "Move Made.",
+      description: "Please wait for your opponent to make their move",
       status: "success",
       position: "bottom-right",
       duration: 5000,
@@ -112,7 +112,20 @@ function PlayerBoard(props) {
   return (
     <VStack>
       <Heading mt={10}>Player vs Player</Heading>
-      {/* //Put address here? */}
+      {/* <Text>Playing against {board.}</Text> */}
+      <Button
+        onClick={() =>
+          getBoardFromChain(
+            props.web3,
+            props.contract,
+            setBoard,
+            setPlayerSymbol,
+            toast
+          )
+        }
+      >
+        Refresh
+      </Button>
       <SimpleGrid pt={3} w="630px" columns={3} spacing="10px">
         {board.map((symbol, index) => (
           <IconButton
