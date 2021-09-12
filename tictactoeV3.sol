@@ -366,10 +366,6 @@ contract TicTacToe {
     
     address public owner;
 
-    constructor() public {
-        owner = msg.sender;
-    }
-
     function transfer(address payable to, uint256 amount) public {
         to.transfer(amount);
     }  
