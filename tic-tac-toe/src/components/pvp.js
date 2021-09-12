@@ -62,10 +62,10 @@ const gameList = (
 
 //TODO avail games give top 10 games avail
 const getOpenGames = async (web3, contract, setOpenGames) => {
-  // let openGames = await contract.methods.games().call({
-  //   from: web3.currentProvider.selectedAddress,
-  // });
-  // console.log(openGames);
+  let openGames = await contract.methods.availGames().call({
+    from: web3.currentProvider.selectedAddress,
+  });
+  console.log(openGames);
 };
 
 //TODO If there is a current game in play, do not show the list, .stats from getboard
