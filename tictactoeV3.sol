@@ -46,7 +46,6 @@ contract TicTacToe {
     address[] public playersArray;
     uint256[] public gamesArray;
     
-    
     function createGame(uint256 _bet, bool isBot) public {
         uint256 gameId = gamesArray.length;
         uint256 betAmt = _bet * (1 ether); //in wei
@@ -95,7 +94,8 @@ contract TicTacToe {
             return (false, "You can't play against yourself.");
         }
         
-        
+        players[player] = gameId;
+
         // Assign the new player to slot 2 if it is empty.
         if (game.playerTwoSymbol == Symbol.EMPTY) {
             game.playerTwo = player;
@@ -219,7 +219,7 @@ contract TicTacToe {
         uint256 gameId = players[msg.sender];
         Game storage game = games[gameId];
         Symbol playerSymbol = (game.playerOne == msg.sender) ? game.playerOneSymbol : game.playerTwoSymbol;
-        return (games[gameId].board, playerSymbol, game.gameStatus);
+        return (games[gameId].board, playerSymbol, game.gameStatus, game.gameType, gameId);
     }
     
     
