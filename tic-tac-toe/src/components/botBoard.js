@@ -29,7 +29,7 @@ const handleSubmit = async (
 ) => {
   try {
     const gas =
-      (await contract.methods.makeMove(position).estimateGas()) + 100000;
+      (await contract.methods.makeMove(position).estimateGas()) + 10000;
     await contract.methods.makeMove(position).send({
       from: web3.currentProvider.selectedAddress,
       gas,
@@ -58,7 +58,7 @@ const handleNewGame = async (
   try {
     //Set bet here?
     const gas =
-      (await contract.methods.createGame(10, true).estimateGas()) + 100000;
+      (await contract.methods.createGame(10, true).estimateGas()) + 10000;
 
     await contract.methods.createGame(10, true).send({
       from: web3.currentProvider.selectedAddress,

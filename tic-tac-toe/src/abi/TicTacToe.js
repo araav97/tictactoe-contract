@@ -74,6 +74,13 @@ export const ticTacToe = [
 	},
 	{
 		"inputs": [],
+		"name": "depositToPot",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "gameStats",
 		"outputs": [
 			{
@@ -181,6 +188,16 @@ export const ticTacToe = [
 				"internalType": "enum TicTacToe.Status",
 				"name": "status",
 				"type": "uint8"
+			},
+			{
+				"internalType": "enum TicTacToe.GameType",
+				"name": "gameType",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint256",
+				"name": "gameId",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -219,14 +236,8 @@ export const ticTacToe = [
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "player",
-				"type": "address"
-			}
-		],
-		"name": "get_score",
+		"inputs": [],
+		"name": "getPotAmt",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -238,10 +249,22 @@ export const ticTacToe = [
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "initializePot",
-		"outputs": [],
-		"stateMutability": "payable",
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "player",
+				"type": "address"
+			}
+		],
+		"name": "getScore",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{

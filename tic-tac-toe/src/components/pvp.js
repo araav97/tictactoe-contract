@@ -47,11 +47,11 @@ const gameList = (
     >
       <HStack p={5} justify="space-between">
         <Text as="kbd" size="m">
-          {el.address}
+          {el.playerOneId}
         </Text>
         <HStack>
           <Text as="kbd" size="m">
-            {el.bet_amount}
+            {el.bet}
           </Text>
           <FaEthereum></FaEthereum>
         </HStack>
@@ -60,12 +60,21 @@ const gameList = (
   ));
 };
 
-//TODO avail games give top 10 games avail
 const getOpenGames = async (web3, contract, setOpenGames) => {
-  let openGames = await contract.methods.availGames().call({
-    from: web3.currentProvider.selectedAddress,
-  });
-  console.log(openGames);
+  let res = await contract.methods.availGames().call();
+  let openGames = [];
+  console.log(res);
+  for (let i = 0; i < 10; i++) {
+    if (res.playerOneId[i] !== '0x0000000000000000000000000000000000000000') {
+      openGames.push({
+        playerOneId: res.playerOneId[i],
+        bet: web3.utils.fromWei(res.bet[i].toString(), 'ether'),
+        gameId: res.gameId[i],
+      })
+    }
+  }
+  console.log(openGames)
+  setOpenGames(openGames);
 };
 
 //TODO If there is a current game in play, do not show the list, .stats from getboard
@@ -73,12 +82,14 @@ const getGameStatus = async (web3, contract, setIsGame) => {
   let board = await contract.methods.getBoard().call({
     from: web3.currentProvider.selectedAddress,
   });
-  // console.log(board);
+  console.log("Test")
+  console.log(board);
 
-  // board = board[0].map((el) => parseInt(el));
-  // setBoard(board);
-  // setPlayerSymbol(board[1]);
-  // console.log(board[1]);
+  if (board.status == 1 || board.status == 2) {
+    setIsGame(true);  
+  } else {
+    setIsGame(true);
+  }
 };
 
 const handleCreateGame = async (
@@ -93,7 +104,7 @@ const handleCreateGame = async (
   // create game\
   setIsOpen(false);
   const gas =
-    (await contract.methods.createGame(bet, false).estimateGas()) + 100000;
+    (await contract.methods.createGame(bet, false).estimateGas()) + 10000;
   await contract.methods.createGame(bet, false).send({
     from: web3.currentProvider.selectedAddress,
     gas,
@@ -110,8 +121,9 @@ const handleCreateGame = async (
 };
 
 const handleSelectGame = async (web3, contract, gameId, setIsGame, toast) => {
+  console.log(gameId)
   // join game
-  const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 100000;
+  const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 10000;
   await contract.methods.joinGame(gameId).send({
     from: web3.currentProvider.selectedAddress,
     gas,
@@ -128,36 +140,35 @@ const handleSelectGame = async (web3, contract, gameId, setIsGame, toast) => {
     });
   }
   //Join game here
-  // setIsGame(true);
+  setIsGame(true);
 };
 
-const handleJoinGame = async (web3, contract, gameId, toast) => {
-  const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 100000;
-  await contract.methods.joinGame(gameId).send({
-    from: web3.currentProvider.selectedAddress,
-    gas,
-  });
+// const handleJoinGame = async (web3, contract, gameId, toast) => {
+//   console.log(gameId)
+//   const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 10000;
+//   await contract.methods.joinGame(gameId).send({
+//     from: web3.currentProvider.selectedAddress,
+//     gas,
+//   });
 
-  if (!toast.isActive("join-game-toast")) {
-    toast({
-      id: "join-game-toast",
-      title: "You have joined a game.",
-      description: "Time to start playing.",
-      status: "success",
-      position: "bottom-right",
-      duration: 5000,
-      isClosable: true,
-    });
-  }
-};
+//   if (!toast.isActive("join-game-toast")) {
+//     toast({
+//       id: "join-game-toast",
+//       title: "You have joined a game.",
+//       description: "Time to start playing.",
+//       status: "success",
+//       position: "bottom-right",
+//       duration: 5000,
+//       isClosable: true,
+//     });
+//   }
+// };
 
 function PvP(props) {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const cancelRef = useRef();
-  const [openGames, setOpenGames] = useState([
-    { address: "1341SD124f!t!@#$G!", bet_amount: 19, gameId: 5 },
-  ]);
+  const [openGames, setOpenGames] = useState([]);
   const [isGame, setIsGame] = useState(false);
   const toast = useToast();
   const [bet, setBet] = useState(0);
@@ -171,7 +182,15 @@ function PvP(props) {
   return (
     <VStack>
       {isGame ? (
+        <>
         <PlayerBoard web3={props.web3} contract={props.contract} />
+        <Button
+          w="20vw"
+          size="lg"
+          onClick={() => setIsGame(false)}>
+          Quit Game
+        </Button>
+        </>
       ) : (
         <>
           <Heading m={10} mb={3}>
