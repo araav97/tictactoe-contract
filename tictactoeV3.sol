@@ -3,8 +3,8 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 /**
- * @title Storage
- * @dev Store & retrieve value in a variable
+ * @title TicTacToe
+ * @dev TicTacToe game
  */
 
 contract TicTacToe {
@@ -35,9 +35,8 @@ contract TicTacToe {
         address player;
         uint256 score;
     }
-    
-    address payable public admin;
 
+    address payable public admin;                   // payable address to receive ether when players lose against bot
 
     mapping(address => uint256) public players;     // mapping to store player and the gameId
     mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
@@ -46,6 +45,7 @@ contract TicTacToe {
     
     address[] public playersArray;
     uint256[] public gamesArray;
+    
     
     function createGame(uint256 _bet, bool isBot) public {
         uint256 gameId = gamesArray.length;
@@ -171,6 +171,8 @@ contract TicTacToe {
          if (_game.gameType == GameType.BOT) {
             if (evaluate(_game.board, playerSymbol, otherPlayerSymbol) == 1) {
                 _game.gameStatus = Status.PLAYER_ONE_WON;
+                updateScoreboard();
+                updateLeaderboard();
                 return "win";
             }
             
@@ -197,8 +199,8 @@ contract TicTacToe {
                     _game.gameStatus = Status.PLAYER_TWO_WON;
                 }
     
-                update_scoreboard();
-                update_leaderboard();
+                updateScoreboard();
+                updateLeaderboard();
                 
                 return "win";
             }
@@ -206,7 +208,6 @@ contract TicTacToe {
             if (isMovesLeft(_game.board) == false) {
                 _game.gameStatus = Status.DRAW;
                 
-                //We take money
                 return "draw";
             }
         }
@@ -276,48 +277,76 @@ contract TicTacToe {
         }
         return -1;
     } 
-         
+
 
     //=============leaderboard=============
-    function update_scoreboard() internal {
+    function updateScoreboard() internal {
         scoreboard[msg.sender] += 1;
     }
 
-    function get_score(address player) public view returns(uint256) {
+    function getScore(address player) public view returns(uint256) {
         return scoreboard[player];
     }
     
-    function update_leaderboard() internal {
+    function updateLeaderboard() internal {
         uint maxLen = 10;
-        uint256 player_score = get_score(msg.sender);
-
-        if (player_score > leaderboard[maxLen-1].score) {
-            for (uint i = 0; i < maxLen; i ++) {
-                if (player_score > leaderboard[i].score) {
-                    if (msg.sender == leaderboard[i].player) {
-                        leaderboard[i].score = player_score;
-                    } else { //shift down
-                        Player memory curr_player = leaderboard[i];
-                        for (uint j = i + 1; j < maxLen + 1; j ++) {
-                            Player memory next_player = leaderboard[j];
-                            leaderboard[j] = curr_player;
-                            curr_player = next_player;
-                        }
-                        leaderboard[i] = Player({
-                            player: msg.sender,
-                            score: player_score
-                        });
-                    }
+        uint256 playerScore = getScore(msg.sender);
+        
+        uint256 numOfPlayers = playersArray.length;
+        if (numOfPlayers < 10) {
+            bool duplicate = false;
+            for (uint i = 0; i < numOfPlayers; i ++ ) {
+                if (msg.sender == leaderboard[i].player) {
+                    leaderboard[i] = Player({
+                        player: msg.sender,
+                        score: playerScore
+                    }); 
+                    duplicate = true;
                 }
             }
-            delete leaderboard[maxLen];
+            if (!duplicate) {
+                leaderboard[numOfPlayers] = Player({
+                    player: msg.sender,
+                    score: playerScore
+                });                 
+            }
+        } else {
+            if (playerScore > leaderboard[maxLen-1].score) {
+                for (uint i = 0; i < maxLen; i ++) {
+                    if (playerScore > leaderboard[i].score) {
+                        if (msg.sender == leaderboard[i].player) {
+                            leaderboard[i] = Player({
+                                player: msg.sender,
+                                score: playerScore
+                            });
+                        } else { //shift down
+                            Player memory currPlayer = leaderboard[i];
+                            for (uint j = i + 1; j < maxLen + 1; j ++) {
+                                Player memory nextPlayer = leaderboard[j];
+                                leaderboard[j] = currPlayer;
+                                currPlayer = nextPlayer;
+                            }
+                            leaderboard[i] = Player({
+                                player: msg.sender,
+                                score: playerScore
+                            });
+                        }
+                    }
+                }
+                delete leaderboard[maxLen];
+            }
         }
     }
     
     
-    //=============wager============= //TODO
-    function initializePot() external payable {
-    }
+    //TODO
+    //=============wager============= 
+    // Function to deposit Ether into this contract, call this function along with some Ether
+    function depositToPot() public payable {}
+    
+    function getPotAmt() public view returns (uint256) {
+        return address(admin).balance /(1 ether);
+    }    
     
     function getPlayerBalance(address player) external view returns(uint256) {
         return player.balance / (1 ether) ;
@@ -330,11 +359,16 @@ contract TicTacToe {
             return false;
         }
     }
-
-    //works
-    function payOutWinnings(address payable _receiver, uint256 _amount) external { //send frm smart contract to receipient
+    
+    //send from contract to winner
+    function payOutWinnings(address payable _receiver, uint256 _amount) external { 
         _receiver.transfer(_amount * (1 ether));
     } 
+    
+    //send from player to contract
+    // function sendToPot() {
+        
+    // }
     
     //=============stats=============
     function getNumofGames() public view returns (uint256) {
