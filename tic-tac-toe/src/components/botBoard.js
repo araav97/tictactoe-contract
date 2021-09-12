@@ -124,9 +124,6 @@ const getBoardFromChain = async (
   if (board.symbol === "0" || board.gameType === "1") {
     setIsGame(false);
     return;
-  } else if (board.status !== "1") {
-    setIsGame(false);
-    return;
   }
 
   setIsGame(true);
