@@ -29,15 +29,15 @@ contract TicTacToe {
 
     struct Game {
         // Players
-        address playerOne; // Player 1 X
-        address playerTwo; // Player 2 O
+        address playerOne;          // Player 1 X
+        address playerTwo;          // Player 2 O
         // Symbol
         Symbol playerOneSymbol;
         Symbol playerTwoSymbol;
-        //Status
+        // Status
         Status gameStatus;
         GameType gameType;
-        uint256 bet; // converted to wei
+        uint256 bet;                // converted to wei
         Symbol[9] board;
     }
 
@@ -46,8 +46,8 @@ contract TicTacToe {
         uint256 score;
     }
 
-    mapping(address => uint256) public players; // mapping to store player and the gameId
-    mapping(uint256 => Game) public games; // mapping to store the player's board with gameId
+    mapping(address => uint256) public players;     // mapping to store player and the gameId
+    mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
     mapping(address => uint256) public scoreboard;
     mapping(uint256 => Player) public leaderboard;
 
@@ -56,7 +56,7 @@ contract TicTacToe {
 
     function createGame(uint256 _bet, bool isBot) public {
         uint256 gameId = gamesArray.length;
-        uint256 betAmt = _bet * (1 ether); //in wei
+        uint256 betAmt = _bet * (1 ether);          //in wei, to be used for v2.0
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
 
@@ -87,8 +87,7 @@ contract TicTacToe {
             board.gameType = GameType.BOT;
             board.playerTwoSymbol = Symbol.O;
 
-            if (generateRandomStart() == 1) {
-                //bot starts
+            if (generateRandomStart() == 1) {       //bot starts if generateRandomStart returns 1
                 int256 move = botMove(
                     board.board,
                     board.playerTwoSymbol,
@@ -102,6 +101,7 @@ contract TicTacToe {
         }
     }
 
+    // function for player two to join a board
     function joinGame(uint256 _gameId)
         public
         returns (bool success, string memory reason)
@@ -124,7 +124,6 @@ contract TicTacToe {
             game.playerTwo = player;
             game.playerTwoSymbol = Symbol.O;
             game.gameStatus = Status.PLAYER_ONE_MOVE;
-            //emit PlayerJoinedGame(_gameId, player, uint8(players.playerTwo));
             return (
                 true,
                 "Joined as player Two player. Player one can make the first move."
@@ -133,6 +132,7 @@ contract TicTacToe {
         return (false, "All seats taken.");
     }
 
+    // check for win / loss
     function evaluate(
         Symbol[9] memory gameboard,
         Symbol player,
@@ -257,6 +257,7 @@ contract TicTacToe {
         return "next move";
     }
 
+    // returns details about the board the player is on
     function getBoard()
         public
         view
@@ -302,6 +303,7 @@ contract TicTacToe {
             ) % 2;
     }
 
+    // algorithm for bot to decide next move
     function botMove(
         Symbol[9] memory board,
         Symbol botSymbol,
@@ -449,7 +451,7 @@ contract TicTacToe {
         return (open, inProgress, complete);
     }
 
-    //10 most recent games that are available
+    // 10 most recent games that are available
     function availGames()
         public
         view
