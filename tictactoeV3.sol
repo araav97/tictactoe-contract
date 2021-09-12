@@ -265,7 +265,8 @@ contract TicTacToe {
             Symbol symbol,
             Status status,
             GameType gameType,
-            uint256 gameId
+            uint256 gameId,
+            address otherPlayer
         )
     {
         uint256 _gameId = players[msg.sender];
@@ -273,12 +274,17 @@ contract TicTacToe {
         Symbol playerSymbol = (game.playerOne == msg.sender)
             ? game.playerOneSymbol
             : game.playerTwoSymbol;
+
+        address _otherPlayer = (game.playerOne == msg.sender)
+            ? game.playerTwo
+            : game.playerOne;
         return (
             games[_gameId].board,
             playerSymbol,
             game.gameStatus,
             game.gameType,
-            _gameId
+            _gameId,
+            _otherPlayer
         );
     }
 

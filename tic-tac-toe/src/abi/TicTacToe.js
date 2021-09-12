@@ -160,6 +160,11 @@ export const ticTacToe = [
         name: "gameId",
         type: "uint256",
       },
+      {
+        internalType: "address",
+        name: "otherPlayer",
+        type: "address",
+      },
     ],
     stateMutability: "view",
     type: "function",
