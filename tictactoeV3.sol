@@ -37,12 +37,7 @@ contract TicTacToe {
     }
     
     address payable public admin;
-    
-    uint256 greenPot;
 
-    constructor() {
-        greenPot = 100 * (1 ether);
-    }
 
     mapping(address => uint256) public players;     // mapping to store player and the gameId
     mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
@@ -145,7 +140,6 @@ contract TicTacToe {
         return false;
     }
     
-    //TODO: check for bot make move after game is won
     function makeMove(uint8 position) public returns (string memory) {
         uint256 gameID = players[msg.sender];
         Game storage _game = games[gameID];
@@ -175,13 +169,17 @@ contract TicTacToe {
         _game.board[position] = playerSymbol;
         
          if (_game.gameType == GameType.BOT) {
+            if (evaluate(_game.board, playerSymbol, otherPlayerSymbol) == 1) {
+                _game.gameStatus = Status.PLAYER_ONE_WON;
+                return "win";
+            }
+            
             //bot move
             int move = botMove(_game.board, otherPlayerSymbol, playerSymbol);
             _game.board[uint256(move)] = otherPlayerSymbol;
             
             if (evaluate(_game.board, otherPlayerSymbol, playerSymbol) == 1) {
                 _game.gameStatus = Status.BOT_WON;
-                //other_player.transfer(wagers_[other_player]); //Other player wins - Wager goes to player
                 return "lost";
             }
             
@@ -195,7 +193,6 @@ contract TicTacToe {
                 
                 if (playerSymbol == _game.playerOneSymbol) {
                     _game.gameStatus = Status.PLAYER_ONE_WON;
- //                   _game.otherPlayer.transfer(_game.bet);
                 } else {
                     _game.gameStatus = Status.PLAYER_TWO_WON;
                 }
@@ -203,8 +200,6 @@ contract TicTacToe {
                 update_scoreboard();
                 update_leaderboard();
                 
-                //TODO: havent add in wagers
-                //host_player.transfer(wagers_[host_player]);
                 return "win";
             }
                 
@@ -220,21 +215,9 @@ contract TicTacToe {
     
 
     function getBoard() public view returns (Symbol[9] memory, Symbol symbol, Status status) {
-        Symbol playerSymbol;
         uint256 gameId = players[msg.sender];
         Game storage game = games[gameId];
-        
-        
-        playerSymbol = (game.playerOne == msg.sender) ? game.playerOneSymbol : game.playerTwoSymbol;
-        
-        /*
-        if (game.playerOne == msg.sender) {
-            playerSymbol = (game.playerOneSymbol == Symbol.X) ? 1: 2;
-        } else {
-            playerSymbol = (game.playerTwoSymbol == Symbol.X) ? 1: 2;
-        }
-        */
-        
+        Symbol playerSymbol = (game.playerOne == msg.sender) ? game.playerOneSymbol : game.playerTwoSymbol;
         return (games[gameId].board, playerSymbol, game.gameStatus);
     }
     
@@ -295,8 +278,6 @@ contract TicTacToe {
     } 
          
 
-    
-    
     //=============leaderboard=============
     function update_scoreboard() internal {
         scoreboard[msg.sender] += 1;
@@ -333,16 +314,13 @@ contract TicTacToe {
         }
     }
     
-    //=============wager=============
+    
+    //=============wager============= //TODO
     function initializePot() external payable {
     }
     
     function getPlayerBalance(address player) external view returns(uint256) {
         return player.balance / (1 ether) ;
-    }
-    
-    function getPotAmt() public view returns (uint256) {
-        return address(this).balance /(1 ether);
     }
     
     function approveBet(uint256 bet) public view returns (bool) {
@@ -352,23 +330,11 @@ contract TicTacToe {
             return false;
         }
     }
-    
-    //seds to receiver instead lol
-    function sendToPot(address to, uint256 amt) public {
-        address payable receiver = payable(to);
-        receiver.transfer(amt * (1 ether));
-    }
 
     //works
     function payOutWinnings(address payable _receiver, uint256 _amount) external { //send frm smart contract to receipient
         _receiver.transfer(_amount * (1 ether));
     } 
-    
-    address public owner;
-
-    function transfer(address payable to, uint256 amount) public {
-        to.transfer(amount);
-    }  
     
     //=============stats=============
     function getNumofGames() public view returns (uint256) {
