@@ -333,6 +333,46 @@ contract TicTacToe {
         }
     }
     
+    //=============wager=============
+    function initializePot() external payable {
+    }
+    
+    function getPlayerBalance(address player) external view returns(uint256) {
+        return player.balance / (1 ether) ;
+    }
+    
+    function getPotAmt() public view returns (uint256) {
+        return address(this).balance /(1 ether);
+    }
+    
+    function approveBet(uint256 bet) public view returns (bool) {
+        if (address(this).balance >= bet) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    //seds to receiver instead lol
+    function sendToPot(address to, uint256 amt) public {
+        address payable receiver = payable(to);
+        receiver.transfer(amt * (1 ether));
+    }
+
+    //works
+    function payOutWinnings(address payable _receiver, uint256 _amount) external { //send frm smart contract to receipient
+        _receiver.transfer(_amount * (1 ether));
+    } 
+    
+    address public owner;
+
+    constructor() public {
+        owner = msg.sender;
+    }
+
+    function transfer(address payable to, uint256 amount) public {
+        to.transfer(amount);
+    }  
     
     //=============stats=============
     function getNumofGames() public view returns (uint256) {
