@@ -94,7 +94,7 @@ contract TicTacToe {
             return (false, "You can't play against yourself.");
         }
         
-        players[player] = gameId;
+        players[player] = _gameId;
 
         // Assign the new player to slot 2 if it is empty.
         if (game.playerTwoSymbol == Symbol.EMPTY) {
@@ -215,11 +215,11 @@ contract TicTacToe {
     }
     
 
-    function getBoard() public view returns (Symbol[9] memory, Symbol symbol, Status status) {
-        uint256 gameId = players[msg.sender];
-        Game storage game = games[gameId];
+    function getBoard() public view returns (Symbol[9] memory, Symbol symbol, Status status, GameType gameType, uint256 gameId) {
+        uint256 _gameId = players[msg.sender];
+        Game storage game = games[_gameId];
         Symbol playerSymbol = (game.playerOne == msg.sender) ? game.playerOneSymbol : game.playerTwoSymbol;
-        return (games[gameId].board, playerSymbol, game.gameStatus, game.gameType, gameId);
+        return (games[_gameId].board, playerSymbol, game.gameStatus, game.gameType, _gameId);
     }
     
     
@@ -401,18 +401,18 @@ contract TicTacToe {
         uint256[] memory bets = new uint256[](maxLen);
         address[] memory playerOneIds = new address[](maxLen);
         
-        if (openGames > 0) {
-            for (uint256 i = 0; i < openGames; i++) {
-                uint256 j = 0;
-                Game storage game = games[i];
-                if (game.gameStatus == Status.WAITING_FOR_PLAYER && game.playerOne != address(0)) {
-                    gameIds[j] = i;
-                    bets[j] = game.bet;
-                    playerOneIds[j] = game.playerOne;
-                    j ++;
-                }
+
+        for (uint256 i = 0; i < openGames; i++) {
+            uint256 j = 0;
+            Game storage game = games[i];
+            if (game.gameStatus == Status.WAITING_FOR_PLAYER && game.playerOne != address(0)) {
+                gameIds[j] = i;
+                bets[j] = game.bet;
+                playerOneIds[j] = game.playerOne;
+                j ++;
             }
-            return (gameIds, bets, playerOneIds);   
         }
+        return (gameIds, bets, playerOneIds);   
+    
     }
 }
