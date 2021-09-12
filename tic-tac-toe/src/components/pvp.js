@@ -65,15 +65,15 @@ const getOpenGames = async (web3, contract, setOpenGames) => {
   let openGames = [];
   console.log(res);
   for (let i = 0; i < 10; i++) {
-    if (res.playerOneId[i] !== '0x0000000000000000000000000000000000000000') {
+    if (res.playerOneId[i] !== "0x0000000000000000000000000000000000000000") {
       openGames.push({
         playerOneId: res.playerOneId[i],
-        bet: web3.utils.fromWei(res.bet[i].toString(), 'ether'),
+        bet: web3.utils.fromWei(res.bet[i].toString(), "ether"),
         gameId: res.gameId[i],
-      })
+      });
     }
   }
-  console.log(openGames)
+  console.log(openGames);
   setOpenGames(openGames);
 };
 
@@ -82,11 +82,15 @@ const getGameStatus = async (web3, contract, setIsGame) => {
   let board = await contract.methods.getBoard().call({
     from: web3.currentProvider.selectedAddress,
   });
-  console.log("Test")
+  console.log("test");
   console.log(board);
+  if (board.gameType === "0" || board.status === "0") {
+    setIsGame(false);
+    return;
+  }
 
-  if (board.status == 1 || board.status == 2) {
-    setIsGame(true);  
+  if (board.status === "1" || board.status === "2") {
+    setIsGame(true);
   } else {
     setIsGame(true);
   }
@@ -104,7 +108,7 @@ const handleCreateGame = async (
   // create game\
   setIsOpen(false);
   const gas =
-    (await contract.methods.createGame(bet, false).estimateGas()) + 10000;
+    (await contract.methods.createGame(bet, false).estimateGas()) + 100000;
   await contract.methods.createGame(bet, false).send({
     from: web3.currentProvider.selectedAddress,
     gas,
@@ -121,9 +125,9 @@ const handleCreateGame = async (
 };
 
 const handleSelectGame = async (web3, contract, gameId, setIsGame, toast) => {
-  console.log(gameId)
+  console.log(gameId);
   // join game
-  const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 10000;
+  const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 100000;
   await contract.methods.joinGame(gameId).send({
     from: web3.currentProvider.selectedAddress,
     gas,
@@ -142,27 +146,6 @@ const handleSelectGame = async (web3, contract, gameId, setIsGame, toast) => {
   //Join game here
   setIsGame(true);
 };
-
-// const handleJoinGame = async (web3, contract, gameId, toast) => {
-//   console.log(gameId)
-//   const gas = (await contract.methods.joinGame(gameId).estimateGas()) + 10000;
-//   await contract.methods.joinGame(gameId).send({
-//     from: web3.currentProvider.selectedAddress,
-//     gas,
-//   });
-
-//   if (!toast.isActive("join-game-toast")) {
-//     toast({
-//       id: "join-game-toast",
-//       title: "You have joined a game.",
-//       description: "Time to start playing.",
-//       status: "success",
-//       position: "bottom-right",
-//       duration: 5000,
-//       isClosable: true,
-//     });
-//   }
-// };
 
 function PvP(props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -183,13 +166,17 @@ function PvP(props) {
     <VStack>
       {isGame ? (
         <>
-        <PlayerBoard web3={props.web3} contract={props.contract} />
-        <Button
-          w="20vw"
-          size="lg"
-          onClick={() => setIsGame(false)}>
-          Quit Game
-        </Button>
+          <PlayerBoard web3={props.web3} contract={props.contract} />
+          <Button
+            w="20vw"
+            size="lg"
+            onClick={() => {
+              setIsGame(false);
+              getOpenGames(props.web3, props.contract, setOpenGames);
+            }}
+          >
+            Quit Game
+          </Button>
         </>
       ) : (
         <>

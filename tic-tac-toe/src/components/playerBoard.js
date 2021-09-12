@@ -29,12 +29,12 @@ const handleSubmit = async (
 ) => {
   try {
     const gas =
-      (await contract.methods.makeMove(position).estimateGas()) + 10000;
+      (await contract.methods.makeMove(position).estimateGas()) + 100000;
     await contract.methods.makeMove(position).send({
       from: web3.currentProvider.selectedAddress,
       gas,
     });
-    getBoardFromChain(web3, contract, setBoard, setPlayerSymbol);
+    getBoardFromChain(web3, contract, setBoard, setPlayerSymbol, toast);
     toast({
       title: "Your Move.",
       description: "The bot has made a move.",
@@ -48,10 +48,43 @@ const handleSubmit = async (
   }
 };
 
-const getBoardFromChain = async (web3, contract, setBoard, setPlayerSymbol) => {
+const getBoardFromChain = async (
+  web3,
+  contract,
+  setBoard,
+  setPlayerSymbol,
+  toast
+) => {
   let board = await contract.methods.getBoard().call({
     from: web3.currentProvider.selectedAddress,
   });
+
+  if (board.status === "3") {
+    toast({
+      title: "You Win",
+      status: "success",
+      position: "bottom-right",
+      duration: 5000,
+      isClosable: true,
+    });
+  } else if (board.status === "5") {
+    toast({
+      title: "You Lost",
+      status: "error",
+      position: "bottom-right",
+      duration: 5000,
+      isClosable: true,
+    });
+  } else if (board.status === "6") {
+    toast({
+      title: "Draw",
+      status: "warning",
+      position: "bottom-right",
+      duration: 5000,
+      isClosable: true,
+    });
+  }
+
   console.log(board);
   setPlayerSymbol(board.symbol);
   board = board[0].map((el) => parseInt(el));
@@ -62,7 +95,13 @@ function PlayerBoard(props) {
   const [board, setBoard] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
 
   useEffect(() => {
-    getBoardFromChain(props.web3, props.contract, setBoard, setPlayerSymbol);
+    getBoardFromChain(
+      props.web3,
+      props.contract,
+      setBoard,
+      setPlayerSymbol,
+      toast
+    );
   }, []);
 
   const [position, setPosition] = useState(-1);
