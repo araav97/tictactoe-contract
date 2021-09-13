@@ -64,6 +64,7 @@ const getOpenGames = async (web3, contract, setOpenGames) => {
   let res = await contract.methods.availGames().call();
   let openGames = [];
   console.log(res);
+
   for (let i = 0; i < 10; i++) {
     if (res.playerOneId[i] !== "0x0000000000000000000000000000000000000000") {
       openGames.push({

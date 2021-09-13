@@ -58,7 +58,7 @@ const getBoardFromChain = async (
   let board = await contract.methods.getBoard().call({
     from: web3.currentProvider.selectedAddress,
   });
-
+  console.log(board);
   if (board.status === "3") {
     toast({
       title: "You Win",

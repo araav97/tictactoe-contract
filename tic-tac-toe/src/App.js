@@ -16,7 +16,7 @@ import Web3 from "web3";
 
 const web3 = new Web3(Web3.givenProvider);
 
-const contractAddressBot = "0x359BF3E64F8Ab376f41e6D338f8201Edd473568e";
+const contractAddressBot = "0x2b14E03d74142a4C3b33520E885B90d58eDC89Ab";
 
 const ticTacToeContract = new web3.eth.Contract(ticTacToe, contractAddressBot, {
   gasPrice: "10000000000", // default gas price in wei, 20 gwei in this case
