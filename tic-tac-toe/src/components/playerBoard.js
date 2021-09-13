@@ -30,11 +30,11 @@ const handleSubmit = async (
   setOtherPlayer
 ) => {
   try {
-    const gas =
-      (await contract.methods.makeMove(position).estimateGas()) + 100000;
+    // const gas =
+    //   (await contract.methods.makeMove(position).estimateGas()) + 100000;
     await contract.methods.makeMove(position).send({
       from: web3.currentProvider.selectedAddress,
-      gas,
+      gas: 4100000,
     });
     getBoardFromChain(
       web3,

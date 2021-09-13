@@ -27,14 +27,17 @@ const handleSubmit = async (
   setPlayerSymbol,
   setIsGame
 ) => {
+  console.log(position);
   try {
-    const gas =
-      (await contract.methods.makeMove(position).estimateGas()) + 100000;
+    //Gas estimation issue due to ropsten gas limit I think
+    // const gas =
+    //   (await contract.methods.makeMove(position).estimateGas()) + 100000;
+    // console.log(gas);
     await contract.methods.makeMove(position).send({
       from: web3.currentProvider.selectedAddress,
-      gas,
+      gas: 4100000,
     });
-
+    console.log(position);
     getBoardFromChain(web3, contract, setBoard, setPlayerSymbol, setIsGame);
     toast({
       title: "Your Move.",
