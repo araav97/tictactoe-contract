@@ -9,6 +9,7 @@ import {
   Heading,
   HStack,
   useToast,
+  Text,
 } from "@chakra-ui/react";
 import { CloseIcon } from "@chakra-ui/icons";
 import { BsCircle } from "react-icons/bs";
@@ -25,7 +26,8 @@ const handleSubmit = async (
   setBoard,
   position,
   toast,
-  setPlayerSymbol
+  setPlayerSymbol,
+  setOtherPlayer
 ) => {
   try {
     const gas =
@@ -34,7 +36,14 @@ const handleSubmit = async (
       from: web3.currentProvider.selectedAddress,
       gas,
     });
-    getBoardFromChain(web3, contract, setBoard, setPlayerSymbol, toast);
+    getBoardFromChain(
+      web3,
+      contract,
+      setBoard,
+      setPlayerSymbol,
+      toast,
+      setOtherPlayer
+    );
     toast({
       title: "Move Made.",
       description: "Please wait for your opponent to make their move",
@@ -53,12 +62,14 @@ const getBoardFromChain = async (
   contract,
   setBoard,
   setPlayerSymbol,
-  toast
+  toast,
+  setOtherPlayer
 ) => {
   let board = await contract.methods.getBoard().call({
     from: web3.currentProvider.selectedAddress,
   });
   console.log(board);
+  setOtherPlayer(board.otherPlayer);
   if (board.status === "3") {
     toast({
       title: "You Win",
@@ -93,14 +104,15 @@ const getBoardFromChain = async (
 
 function PlayerBoard(props) {
   const [board, setBoard] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-
+  const [otherPlayer, setOtherPlayer] = useState("");
   useEffect(() => {
     getBoardFromChain(
       props.web3,
       props.contract,
       setBoard,
       setPlayerSymbol,
-      toast
+      toast,
+      setOtherPlayer
     );
   }, []);
 
@@ -112,7 +124,7 @@ function PlayerBoard(props) {
   return (
     <VStack>
       <Heading mt={10}>Player vs Player</Heading>
-      {/* <Text>Playing against {board.}</Text> */}
+      <Text as="kbd">Playing against {otherPlayer}</Text>
       <Button
         onClick={() =>
           getBoardFromChain(
@@ -120,7 +132,8 @@ function PlayerBoard(props) {
             props.contract,
             setBoard,
             setPlayerSymbol,
-            toast
+            toast,
+            setOtherPlayer
           )
         }
       >
@@ -166,7 +179,8 @@ function PlayerBoard(props) {
               setBoard,
               position,
               toast,
-              setPlayerSymbol
+              setPlayerSymbol,
+              setOtherPlayer
             )
           }
         >
