@@ -14,6 +14,8 @@ import {
 import { CloseIcon } from "@chakra-ui/icons";
 import { BsCircle } from "react-icons/bs";
 
+const MINUTE_MS = 5000;
+
 const handleCardClick = (key, setPosition) => {
   console.log(key);
   setPosition(key);
@@ -70,7 +72,12 @@ const getBoardFromChain = async (
   });
   console.log(board);
   setOtherPlayer(board.otherPlayer);
-  if (board.status === "3") {
+
+  const currentPlayer = board.symbol === "1" ? "3" : "5";
+  const otherPlayer = board.symbol === "2" ? "3" : "5";
+  console.log(board.status);
+  console.log(otherPlayer);
+  if (board.status === currentPlayer) {
     toast({
       title: "You Win",
       status: "success",
@@ -78,7 +85,8 @@ const getBoardFromChain = async (
       duration: 5000,
       isClosable: true,
     });
-  } else if (board.status === "5") {
+  } else if (board.status === otherPlayer) {
+    console.log("g");
     toast({
       title: "You Lost",
       status: "error",
@@ -114,6 +122,18 @@ function PlayerBoard(props) {
       toast,
       setOtherPlayer
     );
+    const interval = setInterval(() => {
+      getBoardFromChain(
+        props.web3,
+        props.contract,
+        setBoard,
+        setPlayerSymbol,
+        toast,
+        setOtherPlayer
+      );
+    }, MINUTE_MS);
+
+    return () => clearInterval(interval); // This represents the unmount function, in which you need to clear your interval to prevent memory leaks.
   }, []);
 
   const [position, setPosition] = useState(-1);
