@@ -85,16 +85,12 @@ const getGameStatus = async (web3, contract, setIsGame) => {
   });
   console.log("test");
   console.log(board);
-  if (board.gameType === "0" || board.status === "0") {
+  if (board.gameType === "0") {
     setIsGame(false);
     return;
   }
 
-  if (board.status === "1" || board.status === "2") {
-    setIsGame(true);
-  } else {
-    setIsGame(true);
-  }
+  setIsGame(true);
 };
 
 const handleCreateGame = async (
