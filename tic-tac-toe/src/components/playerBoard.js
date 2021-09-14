@@ -70,44 +70,48 @@ const getBoardFromChain = async (
   let board = await contract.methods.getBoard().call({
     from: web3.currentProvider.selectedAddress,
   });
-  console.log(board);
   setOtherPlayer(board.otherPlayer);
-
-  const currentPlayer = board.symbol === "1" ? "3" : "5";
-  const otherPlayer = board.symbol === "2" ? "3" : "5";
-  console.log(board.status);
-  console.log(otherPlayer);
-  if (board.status === currentPlayer) {
-    toast({
-      title: "You Win",
-      status: "success",
-      position: "bottom-right",
-      duration: 5000,
-      isClosable: true,
-    });
-  } else if (board.status === otherPlayer) {
-    console.log("g");
-    toast({
-      title: "You Lost",
-      status: "error",
-      position: "bottom-right",
-      duration: 5000,
-      isClosable: true,
-    });
-  } else if (board.status === "6") {
-    toast({
-      title: "Draw",
-      status: "warning",
-      position: "bottom-right",
-      duration: 5000,
-      isClosable: true,
-    });
-  }
-
-  console.log(board);
   setPlayerSymbol(board.symbol);
   board = board[0].map((el) => parseInt(el));
   setBoard(board);
+
+  const currentPlayer = board.symbol === "1" ? "3" : "5";
+  const otherPlayer = board.symbol === "2" ? "3" : "5";
+
+  if (board.status === currentPlayer) {
+    if (!toast.isActive("win-toast")) {
+      toast({
+        id: "win-toast",
+        title: "You Win",
+        status: "success",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  } else if (board.status === otherPlayer) {
+    if (!toast.isActive("lose-toast")) {
+      toast({
+        id: "lose-toast",
+        title: "You Lost",
+        status: "error",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  } else if (board.status === "6") {
+    if (!toast.isActive("draw-toast")) {
+      toast({
+        id: "draw-toast",
+        title: "Draw",
+        status: "warning",
+        position: "bottom-right",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }
 };
 
 function PlayerBoard(props) {
