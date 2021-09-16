@@ -201,18 +201,22 @@ contract TicTacToe {
     function evaluate() public returns (string memory) {
         uint256 _gameId = players[msg.sender];
         Game storage game = games[_gameId];
-        if (
-            msg.sender == game.playerOne &&
-            game.playerOneStatus == PlayerStatus.BETTING
-        ) {
+        if (msg.sender == game.playerOne) {
+            // Only can transition from betting -> reveal
+            if (game.playerOneStatus != PlayerStatus.BETTING) {
+                return "You cannot call this function yet";
+            }
+
             game.playerOneStatus = PlayerStatus.REVEAL;
             if (game.playerTwoStatus != PlayerStatus.REVEAL) {
                 return "Waiting player two to reveal";
             }
-        } else if (
-            msg.sender == game.playerTwo &&
-            game.playerTwoStatus == PlayerStatus.BETTING
-        ) {
+        } else if (msg.sender == game.playerTwo) {
+            // Only can transition from betting -> reveal
+            if (game.playerTwoStatus != PlayerStatus.BETTING) {
+                return "You cannot call this function yet";
+            }
+
             game.playerTwoStatus = PlayerStatus.REVEAL;
             if (game.playerOneStatus != PlayerStatus.REVEAL) {
                 return "Waitng player one to reveal";
