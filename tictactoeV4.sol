@@ -207,7 +207,7 @@ contract TicTacToe {
         ) {
             game.playerOneStatus = PlayerStatus.REVEAL;
             if (game.playerTwoStatus != PlayerStatus.REVEAL) {
-                return "Waitng player two to reveal";
+                return "Waiting player two to reveal";
             }
         } else if (
             msg.sender == game.playerTwo &&
@@ -250,19 +250,19 @@ contract TicTacToe {
             if (
                 (gameboard[winningState[0]] == Symbol.X ||
                     gameboard[winningState[0]] == Symbol.WILDCARD) &&
-                (gameboard[winningState[0]] == Symbol.X ||
-                    gameboard[winningState[0]] == Symbol.WILDCARD) &&
-                (gameboard[winningState[0]] == Symbol.X ||
-                    gameboard[winningState[0]] == Symbol.WILDCARD)
+                (gameboard[winningState[1]] == Symbol.X ||
+                    gameboard[winningState[1]] == Symbol.WILDCARD) &&
+                (gameboard[winningState[2]] == Symbol.X ||
+                    gameboard[winningState[2]] == Symbol.WILDCARD)
             ) {
                 playerOneCount++;
             } else if (
                 ((gameboard[winningState[0]] == Symbol.O ||
                     gameboard[winningState[0]] == Symbol.WILDCARD) &&
-                    (gameboard[winningState[0]] == Symbol.O ||
-                        gameboard[winningState[0]] == Symbol.WILDCARD) &&
-                    (gameboard[winningState[0]] == Symbol.O ||
-                        gameboard[winningState[0]] == Symbol.WILDCARD))
+                    (gameboard[winningState[1]] == Symbol.O ||
+                        gameboard[winningState[1]] == Symbol.WILDCARD) &&
+                    (gameboard[winningState[2]] == Symbol.O ||
+                        gameboard[winningState[2]] == Symbol.WILDCARD))
             ) {
                 playerTwoCount++;
             }
