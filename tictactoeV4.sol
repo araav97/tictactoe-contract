@@ -21,6 +21,7 @@ contract TicTacToe {
 
     enum PlayerStatus {
         NOT_JOINED,
+        JOINED,
         BETTING,
         REVEAL
     }
@@ -33,11 +34,6 @@ contract TicTacToe {
         // Players
         address playerOne; // Player 1 X
         address playerTwo; // Player 2 O
-        // Symbol
-        Symbol playerOneSymbol;
-        Symbol playerTwoSymbol;
-        bool hasPlayerOneBid;
-        bool hasPlayerTwoBid;
         PlayerStatus playerOneStatus;
         PlayerStatus playerTwoStatus;
         uint8[9] playerOneBoard;
@@ -74,11 +70,7 @@ contract TicTacToe {
         games[gameId] = Game({
             playerOne: msg.sender,
             playerTwo: address(0),
-            playerOneSymbol: Symbol.X,
-            playerTwoSymbol: Symbol.EMPTY,
-            hasPlayerOneBid: false,
-            hasPlayerTwoBid: false,
-            playerOneStatus: PlayerStatus.NOT_JOINED,
+            playerOneStatus: PlayerStatus.JOINED,
             playerTwoStatus: PlayerStatus.NOT_JOINED,
             playerOneBoard: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             playerTwoBoard: [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -123,17 +115,12 @@ contract TicTacToe {
         players[player] = _gameId;
 
         // Assign the new player to slot 2 if it is empty.
-        if (game.playerTwoSymbol == Symbol.EMPTY) {
-            game.playerTwo = player;
-            game.playerTwoSymbol = Symbol.O;
-            game.playerOneStatus = PlayerStatus.BETTING;
-            game.playerTwoStatus = PlayerStatus.BETTING;
-            return (
-                true,
-                "Joined as player Two. You can bid for the cells now."
-            );
+        if (game.playerTwoStatus == PlayerStatus.JOINED) {
+            return (false, "All seats taken.");
         }
-        return (false, "All seats taken.");
+        game.playerTwo = player;
+        game.playerTwoStatus = PlayerStatus.JOINED;
+        return (true, "Joined as player Two. You can bid for the cells now.");
     }
 
     function placeBids(uint8[9] memory bidsPlaced) public {
@@ -142,58 +129,10 @@ contract TicTacToe {
 
         if (msg.sender == game.playerOne) {
             game.playerOneBoard = bidsPlaced;
-            game.hasPlayerOneBid = true;
+            game.playerOneStatus = PlayerStatus.BETTING;
         } else if (msg.sender == game.playerTwo) {
             game.playerTwoBoard = bidsPlaced;
-            game.hasPlayerTwoBid = true;
-        }
-    }
-
-    //if REVEAL THEN DO THIS DO THIS AFT BTH PARTIES PLACED BIDS
-    function placeSpots() public {
-        uint256 _gameId = players[msg.sender];
-        Game storage game = games[_gameId];
-
-        for (uint256 i = 0; i < 9; i++) {
-            if (game.playerOneBoard[i] != 0 && game.playerTwoBoard[i] == 0) {
-                game.board[i] = game.playerOneSymbol;
-                game.playerOneBidPoints -= game.playerOneBoard[i];
-            } else if (
-                game.playerOneBoard[i] == 0 && game.playerTwoBoard[i] != 0
-            ) {
-                game.board[i] = game.playerTwoSymbol;
-                game.playerTwoBidPoints -= game.playerTwoBoard[i];
-            } else if (
-                game.playerOneBoard[i] != 0 && game.playerTwoBoard[i] != 0
-            ) {
-                if (game.playerOneBoard[i] > game.playerTwoBoard[i]) {
-                    game.board[i] = game.playerOneSymbol;
-                    game.playerOneBidPoints -= game.playerOneBoard[i];
-                }
-                if (game.playerOneBoard[i] < game.playerTwoBoard[i]) {
-                    game.board[i] = game.playerTwoSymbol;
-                    game.board[i] = game.playerTwoSymbol;
-                }
-                if (game.playerOneBoard[i] == game.playerTwoBoard[i]) {
-                    //game.board[i] = Symbol.WILDCARD;
-                    uint256 randomNum = uint256(
-                        keccak256(
-                            abi.encodePacked(
-                                block.difficulty,
-                                block.timestamp,
-                                playersArray
-                            )
-                        )
-                    ) % 2;
-                    if (randomNum == 1) {
-                        game.board[i] = game.playerOneSymbol;
-                        game.playerOneBidPoints -= game.playerOneBoard[i];
-                    } else {
-                        game.board[i] = game.playerTwoSymbol;
-                        game.playerOneBidPoints -= game.playerTwoBoard[i];
-                    }
-                }
-            }
+            game.playerTwoStatus = PlayerStatus.BETTING;
         }
     }
 
