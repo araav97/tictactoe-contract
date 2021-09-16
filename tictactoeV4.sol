@@ -7,9 +7,6 @@ pragma solidity >=0.7.0 <0.9.0;
  * @dev TicTacToe game
  */
 
-///createGame joinGame
-//place bets
-//reveal
 
 contract TicTacToe {
     enum Symbol {
@@ -18,18 +15,14 @@ contract TicTacToe {
         O,
         WILDCARD
     }
-
+    
     enum PlayerStatus {
         NOT_JOINED,
         JOINED,
         BETTING,
         REVEAL
     }
-
-    //ISPLAYER COMMITTED
-    //FINAL EVALUATED board
-    //ADDRESS OF WINNER
-
+    
     struct Game {
         // Players
         address playerOne; // Player 1 X
@@ -49,20 +42,19 @@ contract TicTacToe {
         uint256 score;
     }
 
-    mapping(address => uint256) public players; // mapping to store player and the gameId
-    mapping(uint256 => Game) public games; // mapping to store the player's board with gameId
+    mapping(address => uint256) public players;     // mapping to store player and the gameId
+    mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
 
     address[] public playersArray;
     uint256[] public gamesArray;
 
     function createGame(uint256 _bet) public {
         uint256 gameId = gamesArray.length;
-        uint256 betAmt = _bet * (1 ether); //in wei, to be used for v2.0
-
-        //TODO
-        //CHECK TO ENSURE THEY GOT SUFF BALANCE TO PLACE BET
-        //IF YES RETURN success + SEND TO CONTRACT
-        //IF NO RETURN NOT ENOUGH
+        uint256 betAmt = _bet * (1 ether);          //in wei, to be used for v2.0
+        
+        require(betAmt > 0.005 ether, "Minimum bet amount is 0.005 ether.");
+        require(approveBet(_bet), "You do not have sufficient funds to place this bet.");
+        //TODO: call send to pot with a msg.value to send amt to contract
 
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
@@ -100,11 +92,6 @@ contract TicTacToe {
             return (false, "No such game exists.");
         }
 
-        //TODO
-        //CHECK TO ENSURE THEY GOT SUFF BALANCE TO PLACE BET
-        //IF YES RETURN success + SEND TO CONTRACT
-        //IF NO RETURN NOT ENOUGH
-
         address player = msg.sender;
         Game storage game = games[_gameId];
 
@@ -112,6 +99,10 @@ contract TicTacToe {
             return (false, "You can't play against yourself.");
         }
 
+        require(approveBet(game.bet), "You do not have sufficient funds to match this bet.");
+        
+        //TODO: call send to pot with a msg.value to send amt to contract    
+        
         players[player] = _gameId;
 
         // Assign the new player to slot 2 if it is empty.
@@ -211,42 +202,30 @@ contract TicTacToe {
             }
         }
 
-        // Add payment
         if (playerOneCount > playerTwoCount) {
+            payOutWinnings(payable(game.playerOne), game.bet * 2);
             return "Player One Won";
         } else if (playerOneCount < playerTwoCount) {
+            payOutWinnings(payable(game.playerTwo), game.bet * 2);
             return "Player Two Won";
         } else {
+            payOutWinnings(payable(game.playerOne), game.bet);
+            payOutWinnings(payable(game.playerTwo), game.bet);
             return "Draw";
         }
     }
 
-    //for debugging
-    function getB() public view returns (Symbol[9] memory) {
-        uint256 _gameId = players[msg.sender];
-        Game storage game = games[_gameId];
-        return game.board;
-    }
-
-    function getOneB() public view returns (uint8[9] memory) {
-        uint256 _gameId = players[msg.sender];
-        Game storage game = games[_gameId];
-        return game.playerOneBoard;
-    }
-
-    function getTwoB() public view returns (uint8[9] memory) {
-        uint256 _gameId = players[msg.sender];
-        Game storage game = games[_gameId];
-        return game.playerTwoBoard;
-    }
-
-    //for debugging
 
     //=============wager=============
-    function initializePot() external payable {}
-
-    function getPlayerBalance(address player) external view returns (uint256) {
-        return player.balance / (1 ether);
+    function initializePot() external payable {
+    }
+    
+    function getPotAmt() public view returns (uint256) {
+        return address(this).balance /(1 ether);
+    }
+    
+    function getPlayerBalance(address player) external view returns(uint256) {
+        return player.balance / (1 ether) ;
     }
 
     function approveBet(uint256 bet) public view returns (bool) {
@@ -256,16 +235,19 @@ contract TicTacToe {
             return false;
         }
     }
-
-    function payOutWinnings(address payable _receiver, uint256 _amount)
-        external
-    {
-        //send frm smart contract to receipient
+    
+    //can only call from outside contract!!!!
+    function sendToPot() external payable {
+    }
+    
+    //send frm smart contract to receipient
+    function payOutWinnings(address payable _receiver, uint256 _amount) public {
         _receiver.transfer(_amount * (1 ether));
     }
 
-    //=============stats=============
 
+    //=============stats=============
+    
     /*
     
 
@@ -374,4 +356,5 @@ contract TicTacToe {
         return (gameIds, bets, playerOneIds);
     }
     */
+    
 }
