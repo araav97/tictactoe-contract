@@ -1,4 +1,4 @@
-export const ticTacToe = [
+export const ticTacToePVP = [
   {
     inputs: [],
     name: "availGames",
