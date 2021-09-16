@@ -7,11 +7,9 @@ pragma solidity >=0.7.0 <0.9.0;
  * @dev TicTacToe game
  */
 
-
 ///createGame joinGame
 //place bets
 //reveal
-
 
 contract TicTacToe {
     enum Symbol {
@@ -20,41 +18,34 @@ contract TicTacToe {
         O,
         WILDCARD
     }
-    
+
     enum PlayerStatus {
         NOT_JOINED,
         BETTING,
         REVEAL
     }
-    
+
     //ISPLAYER COMMITTED
     //FINAL EVALUATED board
     //ADDRESS OF WINNER
 
     struct Game {
         // Players
-        address playerOne;          // Player 1 X
-        address playerTwo;          // Player 2 O
+        address playerOne; // Player 1 X
+        address playerTwo; // Player 2 O
         // Symbol
         Symbol playerOneSymbol;
         Symbol playerTwoSymbol;
-        
         bool hasPlayerOneBid;
         bool hasPlayerTwoBid;
-        
         PlayerStatus playerOneStatus;
         PlayerStatus playerTwoStatus;
-        
         uint8[9] playerOneBoard;
         uint8[9] playerTwoBoard;
-
         uint8 playerOneBidPoints;
         uint8 playerTwoBidPoints;
-        
-        uint256 bet;                // converted to wei
-        
+        uint256 bet; // converted to wei
         Symbol[9] board;
-
     }
 
     struct Player {
@@ -62,21 +53,21 @@ contract TicTacToe {
         uint256 score;
     }
 
-    mapping(address => uint256) public players;     // mapping to store player and the gameId
-    mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
+    mapping(address => uint256) public players; // mapping to store player and the gameId
+    mapping(uint256 => Game) public games; // mapping to store the player's board with gameId
 
     address[] public playersArray;
     uint256[] public gamesArray;
 
     function createGame(uint256 _bet) public {
         uint256 gameId = gamesArray.length;
-        uint256 betAmt = _bet * (1 ether);          //in wei, to be used for v2.0
-        
+        uint256 betAmt = _bet * (1 ether); //in wei, to be used for v2.0
+
         //TODO
-        //CHECK TO ENSURE THEY GOT SUFF BALANCE TO PLACE BET 
+        //CHECK TO ENSURE THEY GOT SUFF BALANCE TO PLACE BET
         //IF YES RETURN success + SEND TO CONTRACT
         //IF NO RETURN NOT ENOUGH
-        
+
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
 
@@ -89,8 +80,8 @@ contract TicTacToe {
             hasPlayerTwoBid: false,
             playerOneStatus: PlayerStatus.NOT_JOINED,
             playerTwoStatus: PlayerStatus.NOT_JOINED,
-            playerOneBoard: [0,0,0,0,0,0,0,0,0],
-            playerTwoBoard: [0,0,0,0,0,0,0,0,0],
+            playerOneBoard: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            playerTwoBoard: [0, 0, 0, 0, 0, 0, 0, 0, 0],
             playerOneBidPoints: 90,
             playerTwoBidPoints: 90,
             bet: betAmt,
@@ -104,7 +95,7 @@ contract TicTacToe {
                 Symbol.EMPTY,
                 Symbol.EMPTY,
                 Symbol.EMPTY
-            ]            
+            ]
         });
     }
 
@@ -118,10 +109,10 @@ contract TicTacToe {
         }
 
         //TODO
-        //CHECK TO ENSURE THEY GOT SUFF BALANCE TO PLACE BET 
+        //CHECK TO ENSURE THEY GOT SUFF BALANCE TO PLACE BET
         //IF YES RETURN success + SEND TO CONTRACT
         //IF NO RETURN NOT ENOUGH
-        
+
         address player = msg.sender;
         Game storage game = games[_gameId];
 
@@ -148,7 +139,7 @@ contract TicTacToe {
     function placeBids(uint8[9] memory bidsPlaced) public {
         uint256 _gameId = players[msg.sender];
         Game storage game = games[_gameId];
-        
+
         if (msg.sender == game.playerOne) {
             game.playerOneBoard = bidsPlaced;
             game.hasPlayerOneBid = true;
@@ -157,20 +148,24 @@ contract TicTacToe {
             game.hasPlayerTwoBid = true;
         }
     }
-    
+
     //if REVEAL THEN DO THIS DO THIS AFT BTH PARTIES PLACED BIDS
     function placeSpots() public {
         uint256 _gameId = players[msg.sender];
         Game storage game = games[_gameId];
-        
-        for (uint i = 0; i < 9; i++) {
+
+        for (uint256 i = 0; i < 9; i++) {
             if (game.playerOneBoard[i] != 0 && game.playerTwoBoard[i] == 0) {
                 game.board[i] = game.playerOneSymbol;
                 game.playerOneBidPoints -= game.playerOneBoard[i];
-            } else if (game.playerOneBoard[i] == 0 && game.playerTwoBoard[i] != 0) {
+            } else if (
+                game.playerOneBoard[i] == 0 && game.playerTwoBoard[i] != 0
+            ) {
                 game.board[i] = game.playerTwoSymbol;
                 game.playerTwoBidPoints -= game.playerTwoBoard[i];
-            } else if (game.playerOneBoard[i] != 0 && game.playerTwoBoard[i] != 0) {
+            } else if (
+                game.playerOneBoard[i] != 0 && game.playerTwoBoard[i] != 0
+            ) {
                 if (game.playerOneBoard[i] > game.playerTwoBoard[i]) {
                     game.board[i] = game.playerOneSymbol;
                     game.playerOneBidPoints -= game.playerOneBoard[i];
@@ -181,21 +176,61 @@ contract TicTacToe {
                 }
                 if (game.playerOneBoard[i] == game.playerTwoBoard[i]) {
                     //game.board[i] = Symbol.WILDCARD;
-                    uint randomNum = uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, playersArray))) % 2;
+                    uint256 randomNum = uint256(
+                        keccak256(
+                            abi.encodePacked(
+                                block.difficulty,
+                                block.timestamp,
+                                playersArray
+                            )
+                        )
+                    ) % 2;
                     if (randomNum == 1) {
                         game.board[i] = game.playerOneSymbol;
                         game.playerOneBidPoints -= game.playerOneBoard[i];
                     } else {
                         game.board[i] = game.playerTwoSymbol;
-                        game.playerOneBidPoints -= game.playerTwoBoard[i];                        
+                        game.playerOneBidPoints -= game.playerTwoBoard[i];
                     }
                 }
             }
         }
     }
-    
-    //todo: change to when status is reveal then eval
-    function rowsOfWins() public view returns(int256) {
+
+    //TODO Add in reveal from both parties before evaluate
+    function evaluate() public returns (string memory) {
+        uint256 _gameId = players[msg.sender];
+        Game storage game = games[_gameId];
+        if (
+            msg.sender == game.playerOne &&
+            game.playerOneStatus == PlayerStatus.BETTING
+        ) {
+            game.playerOneStatus = PlayerStatus.REVEAL;
+            if (game.playerTwoStatus != PlayerStatus.REVEAL) {
+                return "Waitng player two to reveal";
+            }
+        } else if (
+            msg.sender == game.playerTwo &&
+            game.playerTwoStatus == PlayerStatus.BETTING
+        ) {
+            game.playerTwoStatus = PlayerStatus.REVEAL;
+            if (game.playerOneStatus != PlayerStatus.REVEAL) {
+                return "Waitng player one to reveal";
+            }
+        }
+
+        Symbol[9] memory gameboard = game.board;
+
+        for (uint8 i = 0; i < 9; i++) {
+            if (game.playerOneBoard[i] > game.playerTwoBoard[i]) {
+                gameboard[i] = Symbol.X;
+            } else if (game.playerOneBoard[i] < game.playerTwoBoard[i]) {
+                gameboard[i] = Symbol.O;
+            } else {
+                gameboard[i] = Symbol.WILDCARD;
+            }
+        }
+
         uint8[3][8] memory winningStates = [
             [0, 1, 2],
             [3, 4, 5],
@@ -205,30 +240,45 @@ contract TicTacToe {
             [2, 5, 8],
             [0, 4, 8],
             [6, 4, 2]
-        ];        
-        int256 count = 0;
-        uint256 _gameId = players[msg.sender];
-        Game storage game = games[_gameId];
-        Symbol[9] memory gameboard = game.board;
-        
-        Symbol player = (msg.sender == game.playerOne) ? game.playerOneSymbol : game.playerTwoSymbol;
+        ];
+
+        int256 playerOneCount = 0;
+        int256 playerTwoCount = 0;
 
         for (uint8 i = 0; i < winningStates.length; i++) {
             uint8[3] memory winningState = winningStates[i];
-            if (gameboard[winningState[0]] == player &&
-                gameboard[winningState[1]] == player &&
-                gameboard[winningState[2]] == player
+            if (
+                (gameboard[winningState[0]] == Symbol.X ||
+                    gameboard[winningState[0]] == Symbol.WILDCARD) &&
+                (gameboard[winningState[0]] == Symbol.X ||
+                    gameboard[winningState[0]] == Symbol.WILDCARD) &&
+                (gameboard[winningState[0]] == Symbol.X ||
+                    gameboard[winningState[0]] == Symbol.WILDCARD)
             ) {
-                count ++;  
+                playerOneCount++;
+            } else if (
+                ((gameboard[winningState[0]] == Symbol.O ||
+                    gameboard[winningState[0]] == Symbol.WILDCARD) &&
+                    (gameboard[winningState[0]] == Symbol.O ||
+                        gameboard[winningState[0]] == Symbol.WILDCARD) &&
+                    (gameboard[winningState[0]] == Symbol.O ||
+                        gameboard[winningState[0]] == Symbol.WILDCARD))
+            ) {
+                playerTwoCount++;
             }
         }
-        return count;
+
+        // Add payment
+        if (playerOneCount > playerTwoCount) {
+            return "Player One Won";
+        } else if (playerOneCount < playerTwoCount) {
+            return "Player Two Won";
+        } else {
+            return "Draw";
+        }
     }
 
-
-
-
-//for debugging
+    //for debugging
     function getB() public view returns (Symbol[9] memory) {
         uint256 _gameId = players[msg.sender];
         Game storage game = games[_gameId];
@@ -240,23 +290,20 @@ contract TicTacToe {
         Game storage game = games[_gameId];
         return game.playerOneBoard;
     }
-    
+
     function getTwoB() public view returns (uint8[9] memory) {
         uint256 _gameId = players[msg.sender];
         Game storage game = games[_gameId];
         return game.playerTwoBoard;
     }
-//for debugging
 
-
-
+    //for debugging
 
     //=============wager=============
-    function initializePot() external payable {
-    }
+    function initializePot() external payable {}
 
-    function getPlayerBalance(address player) external view returns(uint256) {
-        return player.balance / (1 ether) ;
+    function getPlayerBalance(address player) external view returns (uint256) {
+        return player.balance / (1 ether);
     }
 
     function approveBet(uint256 bet) public view returns (bool) {
@@ -266,21 +313,16 @@ contract TicTacToe {
             return false;
         }
     }
-    
-    function payOutWinnings(address payable _receiver, uint256 _amount) external { //send frm smart contract to receipient
+
+    function payOutWinnings(address payable _receiver, uint256 _amount)
+        external
+    {
+        //send frm smart contract to receipient
         _receiver.transfer(_amount * (1 ether));
     }
 
-
-
-
-
-
-
-
-
     //=============stats=============
-    
+
     /*
     
 
@@ -389,5 +431,4 @@ contract TicTacToe {
         return (gameIds, bets, playerOneIds);
     }
     */
-    
 }
