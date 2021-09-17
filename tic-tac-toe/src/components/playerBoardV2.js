@@ -204,7 +204,7 @@ function PlayerBoard(props) {
             <>
               <Text as="kbd">{`You have ${
                 currentPlayer.otherPlayerNextAction === "draw"
-                  ? "drawed"
+                  ? "draw"
                   : currentPlayer.otherPlayerNextAction === "won"
                   ? "lost"
                   : "won"
