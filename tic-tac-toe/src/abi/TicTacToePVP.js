@@ -4,63 +4,47 @@ export const ticTacToePVP = [
     name: "availGames",
     outputs: [
       {
-        internalType: "uint256[]",
-        name: "gameId",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "bet",
-        type: "uint256[]",
-      },
-      {
-        internalType: "address[]",
-        name: "playerOneId",
-        type: "address[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
-        name: "_bet",
+        name: "numOfOpenGames",
         type: "uint256",
       },
       {
-        internalType: "bool",
-        name: "isBot",
-        type: "bool",
+        internalType: "uint256[10]",
+        name: "gameId",
+        type: "uint256[10]",
+      },
+      {
+        internalType: "uint256[10]",
+        name: "bet",
+        type: "uint256[10]",
+      },
+      {
+        internalType: "address[10]",
+        name: "playerOneId",
+        type: "address[10]",
       },
     ],
-    name: "createGame",
-    outputs: [],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [],
-    name: "gameStats",
+    name: "createGame",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "evaluate",
     outputs: [
       {
-        internalType: "uint256",
-        name: "openGame",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "gameInProgress",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "gameComplete",
-        type: "uint256",
+        internalType: "string",
+        name: "",
+        type: "string",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -84,23 +68,23 @@ export const ticTacToePVP = [
         type: "address",
       },
       {
-        internalType: "enum TicTacToe.Symbol",
-        name: "playerOneSymbol",
+        internalType: "enum TicTacToe.PlayerStatus",
+        name: "playerOneStatus",
         type: "uint8",
       },
       {
-        internalType: "enum TicTacToe.Symbol",
-        name: "playerTwoSymbol",
+        internalType: "enum TicTacToe.PlayerStatus",
+        name: "playerTwoStatus",
         type: "uint8",
       },
       {
-        internalType: "enum TicTacToe.Status",
-        name: "gameStatus",
+        internalType: "uint8",
+        name: "playerOneBidPoints",
         type: "uint8",
       },
       {
-        internalType: "enum TicTacToe.GameType",
-        name: "gameType",
+        internalType: "uint8",
+        name: "playerTwoBidPoints",
         type: "uint8",
       },
       {
@@ -132,57 +116,6 @@ export const ticTacToePVP = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "getBoard",
-    outputs: [
-      {
-        internalType: "enum TicTacToe.Symbol[9]",
-        name: "",
-        type: "uint8[9]",
-      },
-      {
-        internalType: "enum TicTacToe.Symbol",
-        name: "symbol",
-        type: "uint8",
-      },
-      {
-        internalType: "enum TicTacToe.Status",
-        name: "status",
-        type: "uint8",
-      },
-      {
-        internalType: "enum TicTacToe.GameType",
-        name: "gameType",
-        type: "uint8",
-      },
-      {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "otherPlayer",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getNumofGames",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       {
         internalType: "address",
@@ -190,7 +123,60 @@ export const ticTacToePVP = [
         type: "address",
       },
     ],
-    name: "getScore",
+    name: "getBoard",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "gameId",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "playerOne",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "playerTwo",
+        type: "address",
+      },
+      {
+        internalType: "enum TicTacToe.PlayerStatus",
+        name: "playerOneStatus",
+        type: "uint8",
+      },
+      {
+        internalType: "enum TicTacToe.PlayerStatus",
+        name: "playerTwoStatus",
+        type: "uint8",
+      },
+      {
+        internalType: "uint8[9]",
+        name: "playerOneBoard",
+        type: "uint8[9]",
+      },
+      {
+        internalType: "uint8[9]",
+        name: "playerTwoBoard",
+        type: "uint8[9]",
+      },
+      {
+        internalType: "uint256",
+        name: "bet",
+        type: "uint256",
+      },
+      {
+        internalType: "enum TicTacToe.Symbol[9]",
+        name: "board",
+        type: "uint8[9]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getPotAmt",
     outputs: [
       {
         internalType: "uint256",
@@ -222,49 +208,19 @@ export const ticTacToePVP = [
         type: "string",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: "uint8[9]",
+        name: "bidsPlaced",
+        type: "uint8[9]",
       },
     ],
-    name: "leaderboard",
-    outputs: [
-      {
-        internalType: "address",
-        name: "player",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "score",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint8",
-        name: "position",
-        type: "uint8",
-      },
-    ],
-    name: "makeMove",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
+    name: "placeBids",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -301,25 +257,6 @@ export const ticTacToePVP = [
         internalType: "address",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "scoreboard",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",

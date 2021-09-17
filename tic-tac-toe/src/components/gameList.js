@@ -85,11 +85,11 @@ function GameList(props) {
           borderWidth="1px"
           borderRadius="lg"
           w="70vw"
-          onClick={() => props.handleSelectGame(el.gameId)}
+          onClick={() => props.handleSelectGame(el.gameId, el.bet)}
         >
           <HStack p={5} justify="space-between">
             <Text as="kbd" size="m">
-              {el.host}
+              {el.playerOneId}
             </Text>
             <HStack>
               <Text as="kbd" size="m">

@@ -5,27 +5,37 @@ import {
   Button,
   IconButton,
   Icon,
-  useColorModeValue,
   Heading,
   HStack,
-  useToast,
-  Text,
-  NumberInput,
-  NumberInputField,
 } from "@chakra-ui/react";
-import { CloseIcon } from "@chakra-ui/icons";
+import { CloseIcon, StarIcon } from "@chakra-ui/icons";
 import { BsCircle } from "react-icons/bs";
 
 function PlayerResultBoard(props) {
   const [results, setResults] = useState({
-    playerOne: [12, 1, 1, 1, 1, 1, 1, 1, 2],
-    playerTwo: [12, 1, 1, 1, 1, 1, 1, 1, 2],
-    result: [0, 1, 1, 1, 1, 1, 1, 0, 1],
-    winnder: "test",
+    // playerOne: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // playerTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    // result: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+    // winnder: "test",
+    playerOne: props.game.playerOneBoard,
+    playerTwo: props.game.playerTwoBoard,
+    result: props.game.board,
   });
 
+  useEffect(() => {
+    setResults({
+      // playerOne: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // playerTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // result: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+      // winnder: "test",
+      playerOne: props.game.playerOneBoard,
+      playerTwo: props.game.playerTwoBoard,
+      result: props.game.board,
+    });
+  }, [props.game]);
   return (
     <VStack>
+      {console.log(props.game)}
       <HStack w="80vw" justify="space-around">
         <VStack>
           <Heading pt={10} size="md">
@@ -74,8 +84,10 @@ function PlayerResultBoard(props) {
             icon={
               symbol === 1 ? (
                 <CloseIcon boxSize="2em" />
-              ) : (
+              ) : symbol === 2 ? (
                 <Icon boxSize="2em" as={BsCircle} />
+              ) : (
+                <StarIcon boxSize="2em" />
               )
             }
             bg="blue.500"
@@ -85,11 +97,7 @@ function PlayerResultBoard(props) {
         ))}
       </SimpleGrid>
       <br />
-      <HStack>
-        {/* <Button w="20vw" size="lg" onClick={() => handleBoardSubmit(board)}>
-          Confirm
-        </Button> */}
-      </HStack>
+      <HStack></HStack>
     </VStack>
   );
 }
