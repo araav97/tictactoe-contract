@@ -263,4 +263,48 @@ contract TicTacToe {
             game.board
         );
     }
+    
+    // 10 most recent games that are available, for frontend
+    function availGames()
+        public
+        view
+        returns (
+            uint256 numOfOpenGames,
+            uint256[10] memory gameId,
+            uint256[10] memory bet,
+            address[10] memory playerOneId,
+            address[10] memory playerTwoId
+        )
+    {
+        uint256[10] memory gameIds;     
+        uint256[10] memory bets;       
+        address[10] memory playerOneIds;
+        address[10] memory playerTwoIds;
+
+        uint256 noGames = 0;
+        uint256 maxGames = 0;
+        if (gamesArray.length < 10) {
+            noGames = 0;
+            maxGames = gamesArray.length;
+        } else {
+            noGames = gamesArray.length - 10;
+            maxGames = gamesArray.length;
+        }
+        uint256 j = 0;
+        for (uint256 i = noGames; i < maxGames; i++) {
+            Game storage game = games[i];
+            if (
+                game.playerOneStatus == PlayerStatus.JOINED &&
+                game.playerTwoStatus == PlayerStatus.NOT_JOINED &&
+                game.playerOne != address(0)
+            ) {
+                gameIds[j] = i;
+                bets[j] = game.bet;
+                playerOneIds[j] = game.playerOne;
+                playerTwoIds[j] = game.playerTwo; 
+                j++;
+            }
+        }
+        return (j, gameIds, bets, playerOneIds, playerTwoIds);
+    }    
 }
