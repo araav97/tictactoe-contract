@@ -197,42 +197,26 @@ contract TicTacToe {
         }
 
         if (playerOneCount > playerTwoCount) {
-            payOutWinnings(payable(game.playerOne), game.bet * 2);
+            payOutWinnings(payable(game.playerOne), address(this).balance);
             return "Player One Won";
         } else if (playerOneCount < playerTwoCount) {
-            payOutWinnings(payable(game.playerTwo), game.bet * 2);
+            payOutWinnings(payable(game.playerTwo), address(this).balance);
             return "Player Two Won";
         } else {
-            payOutWinnings(payable(game.playerOne), game.bet);
-            payOutWinnings(payable(game.playerTwo), game.bet);
+            payOutWinnings(payable(game.playerOne), address(this).balance/2);
+            payOutWinnings(payable(game.playerTwo), address(this).balance/2);
             return "Draw";
         }
     }
-
 
     //=============bets=============
     function getPotAmt() public view returns (uint256) { //in wei
         return address(this).balance;
     }
-
-    function approveBet(uint256 bet, address player) internal view returns (bool) {
-        if (player.balance/(1 ether) >= bet) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    //can only call from outside contract!!!!
-    function sendToPot() external payable {
-        uint256 _gameId = players[msg.sender];
-        uint256 betAmt = games[_gameId].bet;
-        require(msg.value == betAmt, "Please transfer the correct amount to pot.");
-    }
     
     //send frm smart contract to receipient
     function payOutWinnings(address payable _receiver, uint256 _amount) internal {
-        _receiver.transfer(_amount * (1 ether));
+        _receiver.transfer(_amount);
     }
 
     //returns details about the board the player is on
