@@ -12,7 +12,7 @@ import Web3 from "web3";
 const web3 = new Web3(Web3.givenProvider);
 
 const contractAddressBot = "0x2b14E03d74142a4C3b33520E885B90d58eDC89Ab";
-const contractAddressPVP = "0xAC15f60124645196b0B11f03a2C6aE9A726F0D53";
+const contractAddressPVP = "0x497c791b5CF5A712089C490173baB0FAF5F39e2f";
 
 const ticTacToeBotContract = new web3.eth.Contract(
   ticTacToeBot,
