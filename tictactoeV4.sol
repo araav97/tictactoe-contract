@@ -215,8 +215,8 @@ contract TicTacToe {
             payOutWinnings(payable(game.playerTwo), game.bet * 2);
             return "Player Two Won";
         } else {
-            payOutWinnings(payable(game.playerOne), game.bet / 2);
-            payOutWinnings(payable(game.playerTwo), game.bet / 2);
+            payOutWinnings(payable(game.playerOne), game.bet);
+            payOutWinnings(payable(game.playerTwo), game.bet);
             game.playerOneStatus = PlayerStatus.DRAW;
             game.playerTwoStatus = PlayerStatus.DRAW;
             return "Draw";
