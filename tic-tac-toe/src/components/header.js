@@ -1,14 +1,12 @@
 import {
   Flex,
   useColorMode,
-  Circle,
   IconButton,
   Button,
   useColorModeValue,
   Heading,
 } from "@chakra-ui/react";
 import { SunIcon } from "@chakra-ui/icons";
-import { useState, useEffect } from "react";
 
 function Header(props) {
   const { toggleColorMode } = useColorMode();

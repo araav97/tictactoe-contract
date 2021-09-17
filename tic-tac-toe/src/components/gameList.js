@@ -15,6 +15,7 @@ import {
   InputRightElement,
   InputGroup,
   Heading,
+  VStack,
 } from "@chakra-ui/react";
 import { FaEthereum } from "react-icons/fa";
 import { useState, useRef } from "react";
@@ -32,6 +33,23 @@ function GameList(props) {
       <Heading m={10} mb={3}>
         Player vs Player
       </Heading>
+      <VStack w="60%" p={5} pb={10} borderWidth="3px" borderRadius="lg">
+        <Text pl={5} w="100%">
+          Step 1: Create a game room with a bet or join an existing game room.
+          Host will be player one. (requires a metamask transaction).
+        </Text>
+        <Text pl={5} w="100%">
+          Step 2: This is the bidding phase, choose how you want to split your
+          90 bid points and once done, submit the bid with another transaction.
+        </Text>
+        <Text pl={5} w="100%">
+          Step 3: Once both players has placed their bids, both players must
+          click reveal to get the final result.
+        </Text>
+        <Text pl={5} w="100%">
+          Step 4: Enjoy your winnings or try beat your friend again!
+        </Text>
+      </VStack>
       <Button onClick={() => setIsOpen(true)}>Start New Board</Button>
       <AlertDialog
         isOpen={isOpen}

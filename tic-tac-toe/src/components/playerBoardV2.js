@@ -1,18 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  SimpleGrid,
-  VStack,
-  Button,
-  IconButton,
-  Icon,
-  useColorModeValue,
-  Heading,
-  HStack,
-  useToast,
-  Text,
-} from "@chakra-ui/react";
-import { CloseIcon } from "@chakra-ui/icons";
-import { BsCircle } from "react-icons/bs";
+import { VStack, Button, Heading, Text } from "@chakra-ui/react";
 import PlayerBetBoard from "./playerBetBoard";
 import PlayerResultBoard from "./playerResultBoard";
 const MINUTE_MS = 5000;
@@ -173,6 +160,23 @@ function PlayerBoard(props) {
   return (
     <VStack>
       <Heading mt={10}>Player vs Player</Heading>
+      <VStack w="60%" p={5} pb={10} borderWidth="3px" borderRadius="lg">
+        <Text pl={5} w="100%">
+          Step 1: Create a game room with a bet or join an existing game room.
+          Host will be player one. (requires a metamask transaction).
+        </Text>
+        <Text pl={5} w="100%">
+          Step 2: This is the bidding phase, choose how you want to split your
+          90 bid points and once done, submit the bid with another transaction.
+        </Text>
+        <Text pl={5} w="100%">
+          Step 3: Once both players has placed their bids, both players must
+          click reveal to get the final result.
+        </Text>
+        <Text pl={5} w="100%">
+          Step 4: Enjoy your winnings or try beat your friend again!
+        </Text>
+      </VStack>
       <Button onClick={() => getBoardFromChain()}>Refresh</Button>
       {
         {

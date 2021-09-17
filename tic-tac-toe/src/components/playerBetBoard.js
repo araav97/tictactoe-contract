@@ -1,14 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   SimpleGrid,
   VStack,
   Button,
-  IconButton,
-  Icon,
-  useColorModeValue,
-  Heading,
   HStack,
-  useToast,
   Text,
   NumberInput,
   NumberInputField,
@@ -16,9 +11,8 @@ import {
 
 function PlayerBetBoard(props) {
   const [board, setBoard] = useState([0, 0, 0, 0, 0, 0, 0, 0, 0]);
-  const { otherPlayer, bet, handleBoardSubmit } = props;
+  const { handleBoardSubmit } = props;
 
-  const color = useColorModeValue("red.600", "red.300");
   return (
     <VStack>
       <Text>

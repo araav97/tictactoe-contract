@@ -1,17 +1,10 @@
 import "./App.css";
 import BotBoard from "./components/botBoard.js";
 import Header from "./components/header.js";
-import PvP from "./components/pvp.js";
 import PvPV2 from "./components/pvpV2.js";
 import Home from "./components/home.js";
-import {
-  ChakraProvider,
-  theme,
-  Heading,
-  VStack,
-  Button,
-} from "@chakra-ui/react";
-import { useState, useEffect } from "react";
+import { ChakraProvider, theme } from "@chakra-ui/react";
+import { useState } from "react";
 import { ticTacToeBot } from "./abi/TicTacToeBot";
 import { ticTacToePVP } from "./abi/TicTacToePVP";
 import Web3 from "web3";

@@ -13,10 +13,6 @@ import { BsCircle } from "react-icons/bs";
 
 function PlayerResultBoard(props) {
   const [results, setResults] = useState({
-    // playerOne: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    // playerTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-    // result: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-    // winnder: "test",
     playerOne: props.game.playerOneBoard,
     playerTwo: props.game.playerTwoBoard,
     result: props.game.board,
@@ -24,10 +20,6 @@ function PlayerResultBoard(props) {
 
   useEffect(() => {
     setResults({
-      // playerOne: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // playerTwo: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-      // result: [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-      // winnder: "test",
       playerOne: props.game.playerOneBoard,
       playerTwo: props.game.playerTwoBoard,
       result: props.game.board,

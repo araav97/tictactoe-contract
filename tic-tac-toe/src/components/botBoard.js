@@ -29,10 +29,6 @@ const handleSubmit = async (
 ) => {
   console.log(position);
   try {
-    //Gas estimation issue due to ropsten gas limit I think
-    // const gas =
-    //   (await contract.methods.makeMove(position).estimateGas()) + 100000;
-    // console.log(gas);
     await contract.methods.makeMove(position).send({
       from: web3.currentProvider.selectedAddress,
       gas: 4100000,

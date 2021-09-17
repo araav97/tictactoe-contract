@@ -1,27 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import {
-  VStack,
-  useColorModeValue,
-  Box,
-  HStack,
-  Text,
-  Button,
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogOverlay,
-  NumberInput,
-  NumberInputField,
-  InputRightElement,
-  InputGroup,
-  Heading,
-  useToast,
-} from "@chakra-ui/react";
+import { VStack, Button, useToast } from "@chakra-ui/react";
 import PlayerBoardV2 from "./playerBoardV2";
 import GameList from "./gameList";
-import { BsClipboardData } from "react-icons/bs";
 
 const MINUTE_MS = 1000;
 
