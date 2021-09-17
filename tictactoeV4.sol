@@ -7,7 +7,6 @@ pragma solidity >=0.7.0 <0.9.0;
  * @dev TicTacToe game
  */
 
-
 contract TicTacToe {
     enum Symbol {
         EMPTY,
@@ -15,14 +14,14 @@ contract TicTacToe {
         O,
         WILDCARD
     }
-    
+
     enum PlayerStatus {
         NOT_JOINED,
         JOINED,
         BETTING,
         REVEAL
     }
-    
+
     struct Game {
         // Players
         address playerOne; // Player 1 X
@@ -42,15 +41,15 @@ contract TicTacToe {
         uint256 score;
     }
 
-    mapping(address => uint256) public players;     // mapping to store player and the gameId
-    mapping(uint256 => Game) public games;          // mapping to store the player's board with gameId
+    mapping(address => uint256) public players; // mapping to store player and the gameId
+    mapping(uint256 => Game) public games; // mapping to store the player's board with gameId
 
     address[] public playersArray;
     uint256[] public gamesArray;
 
     function createGame() external payable {
         uint256 gameId = gamesArray.length;
-        uint256 betAmt = msg.value * (1 ether);          
+        uint256 betAmt = msg.value * (1 ether);
 
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
@@ -81,7 +80,8 @@ contract TicTacToe {
 
     // function for player two to join a board
     function joinGame(uint256 _gameId)
-        external payable
+        external
+        payable
         returns (bool success, string memory reason)
     {
         if (gamesArray.length == 0 || _gameId > gamesArray.length) {
@@ -95,7 +95,10 @@ contract TicTacToe {
             return (false, "You can't play against yourself.");
         }
 
-        require(msg.value == (game.bet / 1 ether), "Please transfer the correct amount to pot.");
+        require(
+            msg.value == (game.bet / 1 ether),
+            "Please transfer the correct amount to pot."
+        );
 
         players[player] = _gameId;
 
@@ -203,30 +206,33 @@ contract TicTacToe {
             payOutWinnings(payable(game.playerTwo), address(this).balance);
             return "Player Two Won";
         } else {
-            payOutWinnings(payable(game.playerOne), address(this).balance/2);
-            payOutWinnings(payable(game.playerTwo), address(this).balance/2);
+            payOutWinnings(payable(game.playerOne), address(this).balance / 2);
+            payOutWinnings(payable(game.playerTwo), address(this).balance / 2);
             return "Draw";
         }
     }
 
     //=============bets=============
-    function getPotAmt() public view returns (uint256) { //in wei
+    function getPotAmt() public view returns (uint256) {
+        //in wei
         return address(this).balance;
     }
-    
+
     //send frm smart contract to receipient
-    function payOutWinnings(address payable _receiver, uint256 _amount) internal {
+    function payOutWinnings(address payable _receiver, uint256 _amount)
+        internal
+    {
         _receiver.transfer(_amount);
     }
 
     //returns details about the board the player is on
     //function getBoard() public view returns(uint256 _bet, address _playerOne, address _playerTwo, PlayerStatus _playerOneStatus, PlayerStatus _playerTwoStatus, uint8[9] memory boardOne, uint8[9] memory boardTwo, Symbol[9] memory board) {
     //    uint256 _gameId = players[msg.sender];
-    //    Game storage game = games[_gameId];        
-    //}    
+    //    Game storage game = games[_gameId];
+    //}
 
-        //=============helpers=============
-   // returns details about the board the player is on
+    //=============helpers=============
+    // returns details about the board the player is on
     function getBoard()
         public
         view
@@ -235,7 +241,7 @@ contract TicTacToe {
             address playerOne,
             address playerTwo,
             PlayerStatus playerOneStatus,
-            PlayerStatus playerTwoStatus, 
+            PlayerStatus playerTwoStatus,
             uint8[9] memory playerOneBoard,
             uint8[9] memory playerTwoBoard,
             uint256 bet,
@@ -257,7 +263,4 @@ contract TicTacToe {
             game.board
         );
     }
-    
-}
-
 }
