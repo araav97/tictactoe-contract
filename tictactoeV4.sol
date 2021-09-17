@@ -131,6 +131,10 @@ contract TicTacToe {
     function evaluate() public returns (string memory) {
         uint256 _gameId = players[msg.sender];
         Game storage game = games[_gameId];
+
+        require(game.playerOneStatus != PlayerStatus.NOT_JOINED && game.playerOneStatus != PlayerStatus.JOINED, "Waiting for other player to reveal");
+        require(game.playerTwoStatus != PlayerStatus.NOT_JOINED && game.playerTwoStatus != PlayerStatus.JOINED, "Waiting for other player to reveal");        
+        
         if (msg.sender == game.playerOne) {
             // Only can transition from betting -> reveal
             if (game.playerOneStatus != PlayerStatus.BETTING) {
