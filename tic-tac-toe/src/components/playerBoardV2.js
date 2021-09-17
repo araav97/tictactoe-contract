@@ -61,7 +61,7 @@ function PlayerBoard(props) {
       alert("Please bid at most 90");
     }
     try {
-      const gas = (await contract.methods.placeBids(board).estimateGas()) * 100;
+      const gas = (await contract.methods.placeBids(board).estimateGas()) * 2;
       await contract.methods.placeBids(board).send({
         from: web3.currentProvider.selectedAddress,
         gas,
