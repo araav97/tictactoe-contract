@@ -240,4 +240,40 @@ contract TicTacToe {
     //    uint256 _gameId = players[msg.sender];
     //    Game storage game = games[_gameId];        
     //}    
+
+        //=============helpers=============
+   // returns details about the board the player is on
+    function getBoard()
+        public
+        view
+        returns (
+            uint256 gameId,
+            address playerOne,
+            address playerTwo,
+            PlayerStatus playerOneStatus,
+            PlayerStatus playerTwoStatus, 
+            uint8[9] memory playerOneBoard,
+            uint8[9] memory playerTwoBoard,
+            uint256 bet,
+            Symbol[9] memory board
+        )
+    {
+        uint256 _gameId = players[msg.sender];
+        Game storage game = games[_gameId];
+
+        return (
+            _gameId,
+            game.playerOne,
+            game.playerTwo,
+            game.playerOneStatus,
+            game.playerTwoStatus,
+            game.playerOneBoard,
+            game.playerTwoBoard,
+            game.bet,
+            game.board
+        );
+    }
+    
+}
+
 }
