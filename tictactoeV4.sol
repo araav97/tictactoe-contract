@@ -225,12 +225,6 @@ contract TicTacToe {
         _receiver.transfer(_amount);
     }
 
-    //returns details about the board the player is on
-    //function getBoard() public view returns(uint256 _bet, address _playerOne, address _playerTwo, PlayerStatus _playerOneStatus, PlayerStatus _playerTwoStatus, uint8[9] memory boardOne, uint8[9] memory boardTwo, Symbol[9] memory board) {
-    //    uint256 _gameId = players[msg.sender];
-    //    Game storage game = games[_gameId];
-    //}
-
     //=============helpers=============
     // returns details about the board the player is on
     function getBoard()
@@ -272,14 +266,12 @@ contract TicTacToe {
             uint256 numOfOpenGames,
             uint256[10] memory gameId,
             uint256[10] memory bet,
-            address[10] memory playerOneId,
-            address[10] memory playerTwoId
+            address[10] memory playerOneId
         )
     {
-        uint256[10] memory gameIds;     
-        uint256[10] memory bets;       
+        uint256[10] memory gameIds;    
+        uint256[10] memory bets;        
         address[10] memory playerOneIds;
-        address[10] memory playerTwoIds;
 
         uint256 noGames = 0;
         uint256 maxGames = 0;
@@ -301,10 +293,9 @@ contract TicTacToe {
                 gameIds[j] = i;
                 bets[j] = game.bet;
                 playerOneIds[j] = game.playerOne;
-                playerTwoIds[j] = game.playerTwo; 
                 j++;
             }
         }
-        return (j, gameIds, bets, playerOneIds, playerTwoIds);
-    }    
+        return (j, gameIds, bets, playerOneIds);
+    }
 }
