@@ -190,7 +190,9 @@ contract TicTacToe {
                     gameboard[winningState[2]] == Symbol.WILDCARD)
             ) {
                 playerOneCount++;
-            } else if (
+            }
+
+            if (
                 ((gameboard[winningState[0]] == Symbol.O ||
                     gameboard[winningState[0]] == Symbol.WILDCARD) &&
                     (gameboard[winningState[1]] == Symbol.O ||
@@ -203,18 +205,18 @@ contract TicTacToe {
         }
 
         if (playerOneCount > playerTwoCount) {
-            payOutWinnings(payable(game.playerOne), address(this).balance);
+            payOutWinnings(payable(game.playerOne), game.bet * 2);
             game.playerOneStatus = PlayerStatus.WON;
             game.playerTwoStatus = PlayerStatus.LOST;
             return "Player One Won";
         } else if (playerOneCount < playerTwoCount) {
             game.playerOneStatus = PlayerStatus.LOST;
             game.playerTwoStatus = PlayerStatus.WON;
-            payOutWinnings(payable(game.playerTwo), address(this).balance);
+            payOutWinnings(payable(game.playerTwo), game.bet * 2);
             return "Player Two Won";
         } else {
-            payOutWinnings(payable(game.playerOne), address(this).balance / 2);
-            payOutWinnings(payable(game.playerTwo), address(this).balance / 2);
+            payOutWinnings(payable(game.playerOne), game.bet / 2);
+            payOutWinnings(payable(game.playerTwo), game.bet / 2);
             game.playerOneStatus = PlayerStatus.DRAW;
             game.playerTwoStatus = PlayerStatus.DRAW;
             return "Draw";
