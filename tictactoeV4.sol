@@ -149,18 +149,18 @@ contract TicTacToe {
                 return "Waitng player one to reveal";
             }
         }
-
-        Symbol[9] memory gameboard = game.board;
-
+        
         for (uint8 i = 0; i < 9; i++) {
             if (game.playerOneBoard[i] > game.playerTwoBoard[i]) {
-                gameboard[i] = Symbol.X;
+                game.board[i] = Symbol.X;
             } else if (game.playerOneBoard[i] < game.playerTwoBoard[i]) {
-                gameboard[i] = Symbol.O;
+                game.board[i] = Symbol.O;
             } else {
-                gameboard[i] = Symbol.WILDCARD;
+                game.board[i] = Symbol.WILDCARD;
             }
         }
+        
+        Symbol[9] storage gameboard = game.board;
 
         uint8[3][8] memory winningStates = [
             [0, 1, 2],
