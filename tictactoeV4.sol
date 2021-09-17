@@ -48,13 +48,9 @@ contract TicTacToe {
     address[] public playersArray;
     uint256[] public gamesArray;
 
-    function createGame(uint256 _bet) public {
+    function createGame() external payable {
         uint256 gameId = gamesArray.length;
-        uint256 betAmt = _bet * (1 ether);          //in wei, to be used for v2.0
-        
-        require(betAmt > 0.005 ether, "Minimum bet amount is 0.005 ether.");
-        require(approveBet(_bet), "You do not have sufficient funds to place this bet.");
-        //TODO: call send to pot with a msg.value to send amt to contract
+        uint256 betAmt = msg.value * (1 ether);          
 
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
@@ -85,7 +81,7 @@ contract TicTacToe {
 
     // function for player two to join a board
     function joinGame(uint256 _gameId)
-        public
+        external payable
         returns (bool success, string memory reason)
     {
         if (gamesArray.length == 0 || _gameId > gamesArray.length) {
@@ -99,10 +95,8 @@ contract TicTacToe {
             return (false, "You can't play against yourself.");
         }
 
-        require(approveBet(game.bet), "You do not have sufficient funds to match this bet.");
-        
-        //TODO: call send to pot with a msg.value to send amt to contract    
-        
+        require(msg.value == (game.bet / 1 ether), "Please transfer the correct amount to pot.");
+
         players[player] = _gameId;
 
         // Assign the new player to slot 2 if it is empty.
@@ -216,20 +210,13 @@ contract TicTacToe {
     }
 
 
-    //=============wager=============
-    function initializePot() external payable {
-    }
-    
-    function getPotAmt() public view returns (uint256) {
-        return address(this).balance /(1 ether);
-    }
-    
-    function getPlayerBalance(address player) external view returns(uint256) {
-        return player.balance / (1 ether) ;
+    //=============bets=============
+    function getPotAmt() public view returns (uint256) { //in wei
+        return address(this).balance;
     }
 
-    function approveBet(uint256 bet) public view returns (bool) {
-        if (address(this).balance >= bet) {
+    function approveBet(uint256 bet, address player) internal view returns (bool) {
+        if (player.balance/(1 ether) >= bet) {
             return true;
         } else {
             return false;
@@ -238,123 +225,19 @@ contract TicTacToe {
     
     //can only call from outside contract!!!!
     function sendToPot() external payable {
+        uint256 _gameId = players[msg.sender];
+        uint256 betAmt = games[_gameId].bet;
+        require(msg.value == betAmt, "Please transfer the correct amount to pot.");
     }
     
     //send frm smart contract to receipient
-    function payOutWinnings(address payable _receiver, uint256 _amount) public {
+    function payOutWinnings(address payable _receiver, uint256 _amount) internal {
         _receiver.transfer(_amount * (1 ether));
     }
 
-
-    //=============stats=============
-    
-    /*
-    
-
-    // returns details about the board the player is on
-    function getBoard()
-        public
-        view
-        returns (
-//            Symbol[9] memory,
-            Symbol symbol,
-            Status status,
-//            GameType gameType,
-            uint256 gameId,
-            address otherPlayer
-        )
-    {
-        uint256 _gameId = players[msg.sender];
-        Game storage game = games[_gameId];
-        Symbol playerSymbol = (game.playerOne == msg.sender)
-            ? game.playerOneSymbol
-            : game.playerTwoSymbol;
-
-        address _otherPlayer = (game.playerOne == msg.sender)
-            ? game.playerTwo
-            : game.playerOne;
-        return (
-//            games[_gameId].board,
-            playerSymbol,
-            game.gameStatus,
-            _gameId,
-            _otherPlayer
-        );
-    }
-    
-    
-    
-    
-    function getNumofGames() public view returns (uint256) {
-        return gamesArray.length;
-    }
-
-    function gameStats()
-        public
-        view
-        returns (
-            uint256 openGame,
-            uint256 gameInProgress,
-            uint256 gameComplete
-        )
-    {
-        uint256 open = 0;
-        uint256 inProgress = 0;
-        uint256 complete = 0;
-
-        for (uint256 i = 0; i < gamesArray.length; i++) {
-            Game storage game = games[i];
-            if (game.gameStatus == Status.WAITING_FOR_PLAYER) {
-                open++;
-            } else if (game.gameStatus == Status.BETTING) {
-                inProgress++;
-            } else {
-                complete++;
-            }
-        }
-        return (open, inProgress, complete);
-    }
-
-    // 10 most recent games that are available
-    function availGames()
-        public
-        view
-        returns (
-            uint256[] memory gameId,
-            uint256[] memory bet,
-            address[] memory playerOneId
-        )
-    {
-        uint256 maxLen = 10;
-        uint256[] memory gameIds = new uint256[](maxLen);
-        uint256[] memory bets = new uint256[](maxLen);
-        address[] memory playerOneIds = new address[](maxLen);
-
-        uint256 noGames = 0;
-        uint256 maxGames = 0;
-        if (gamesArray.length < 10) {
-            noGames = 0;
-            maxGames = gamesArray.length;
-        } else {
-            noGames = gamesArray.length - 10;
-            maxGames = gamesArray.length;
-        }
-
-        for (uint256 i = noGames; i < maxGames; i++) {
-            uint256 j = 0;
-            Game storage game = games[i];
-            if (
-                game.gameStatus == Status.WAITING_FOR_PLAYER &&
-                game.playerOne != address(0)
-            ) {
-                gameIds[j] = i;
-                bets[j] = game.bet;
-                playerOneIds[j] = game.playerOne;
-                j++;
-            }
-        }
-        return (gameIds, bets, playerOneIds);
-    }
-    */
-    
+    //returns details about the board the player is on
+    //function getBoard() public view returns(uint256 _bet, address _playerOne, address _playerTwo, PlayerStatus _playerOneStatus, PlayerStatus _playerTwoStatus, uint8[9] memory boardOne, uint8[9] memory boardTwo, Symbol[9] memory board) {
+    //    uint256 _gameId = players[msg.sender];
+    //    Game storage game = games[_gameId];        
+    //}    
 }
