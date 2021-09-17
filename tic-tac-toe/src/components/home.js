@@ -59,7 +59,7 @@ function Home(props) {
           players(counts to their rows)!
           <br />
           <br />
-          The winner will be then decided by the number of winning rows formed!
+          The winner will then be decided by the number of winning rows formed!
         </Text>
         <Text pl={5} w="100%">
           Step 1: Create a game room with a bet or join an existing game room.
@@ -74,7 +74,7 @@ function Home(props) {
           click reveal to get the final result.
         </Text>
         <Text pl={5} w="100%">
-          Step 4: Enjoy your winnings or try beat your friend again!
+          Step 4: Enjoy your winnings or try beat and your friend again!
         </Text>
       </VStack>
     </VStack>

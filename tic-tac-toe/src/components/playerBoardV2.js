@@ -59,6 +59,7 @@ function PlayerBoard(props) {
     const sum = board.reduce((partial_sum, a) => partial_sum + a, 0);
     if (sum > 90) {
       alert("Please bid at most 90");
+      return;
     }
     try {
       const gas = (await contract.methods.placeBids(board).estimateGas()) * 5;
