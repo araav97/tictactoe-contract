@@ -17,7 +17,6 @@ import { BsCircle } from "react-icons/bs";
 const MINUTE_MS = 5000;
 
 const handleCardClick = (key, setPosition) => {
-  console.log(key);
   setPosition(key);
 };
 

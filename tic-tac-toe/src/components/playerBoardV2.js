@@ -202,7 +202,6 @@ function PlayerBoard(props) {
           ),
           result: (
             <>
-              {console.log(currentPlayer.otherPlayerNextAction)}
               <Text as="kbd">{`You have ${
                 currentPlayer.otherPlayerNextAction === "draw"
                   ? "drawed"

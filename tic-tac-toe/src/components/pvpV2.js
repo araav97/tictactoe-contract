@@ -60,13 +60,11 @@ function PvP(props) {
   // Handlers
   const handleSelectGame = async (gameId, bet) => {
     // join game
-    console.log(web3.utils.toWei(bet, "ether"));
     const gas =
       (await contract.methods.joinGame(gameId).estimateGas({
         from: web3.currentProvider.selectedAddress,
         value: web3.utils.toWei(bet, "ether"),
       })) * 2;
-    console.log(bet);
     await contract.methods.joinGame(gameId).send({
       from: web3.currentProvider.selectedAddress,
       value: web3.utils.toWei(bet, "ether"),
@@ -80,7 +78,6 @@ function PvP(props) {
   const handleCreateGame = async (value) => {
     // create game
     const gas = (await contract.methods.createGame().estimateGas()) * 2;
-    console.log(value);
     await contract.methods.createGame().send({
       from: web3.currentProvider.selectedAddress,
       value: web3.utils.toWei(value, "ether"),

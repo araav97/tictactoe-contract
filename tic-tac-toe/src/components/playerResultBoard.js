@@ -27,7 +27,6 @@ function PlayerResultBoard(props) {
   }, [props.game]);
   return (
     <VStack>
-      {console.log(props.game)}
       <HStack w="80vw" justify="space-around">
         <VStack>
           <Heading pt={10} size="md">
