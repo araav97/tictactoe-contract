@@ -49,7 +49,7 @@ contract TicTacToe {
 
     function createGame() external payable {
         uint256 gameId = gamesArray.length;
-        uint256 betAmt = msg.value * (1 ether);
+        uint256 betAmt = msg.value;
 
         gamesArray.push(gameId);
         players[msg.sender] = gameId;
@@ -96,7 +96,7 @@ contract TicTacToe {
         }
 
         require(
-            msg.value == (game.bet / 1 ether),
+            msg.value == (game.bet),
             "Please transfer the correct amount to pot."
         );
 
@@ -149,7 +149,7 @@ contract TicTacToe {
                 return "Waitng player one to reveal";
             }
         }
-        
+
         for (uint8 i = 0; i < 9; i++) {
             if (game.playerOneBoard[i] > game.playerTwoBoard[i]) {
                 game.board[i] = Symbol.X;
@@ -159,7 +159,7 @@ contract TicTacToe {
                 game.board[i] = Symbol.WILDCARD;
             }
         }
-        
+
         Symbol[9] storage gameboard = game.board;
 
         uint8[3][8] memory winningStates = [
@@ -227,7 +227,7 @@ contract TicTacToe {
 
     //=============helpers=============
     // returns details about the board the player is on
-    function getBoard()
+    function getBoard(address player)
         public
         view
         returns (
@@ -242,7 +242,7 @@ contract TicTacToe {
             Symbol[9] memory board
         )
     {
-        uint256 _gameId = players[msg.sender];
+        uint256 _gameId = players[player];
         Game storage game = games[_gameId];
 
         return (
@@ -257,7 +257,7 @@ contract TicTacToe {
             game.board
         );
     }
-    
+
     // 10 most recent games that are available, for frontend
     function availGames()
         public
@@ -269,8 +269,8 @@ contract TicTacToe {
             address[10] memory playerOneId
         )
     {
-        uint256[10] memory gameIds;    
-        uint256[10] memory bets;        
+        uint256[10] memory gameIds;
+        uint256[10] memory bets;
         address[10] memory playerOneIds;
 
         uint256 noGames = 0;
