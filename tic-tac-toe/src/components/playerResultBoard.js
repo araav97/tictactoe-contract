@@ -74,9 +74,9 @@ function PlayerResultBoard(props) {
           <IconButton
             key={index}
             icon={
-              symbol === 1 ? (
+              symbol === "1" ? (
                 <CloseIcon boxSize="2em" />
-              ) : symbol === 2 ? (
+              ) : symbol === "2" ? (
                 <Icon boxSize="2em" as={BsCircle} />
               ) : (
                 <StarIcon boxSize="2em" />

@@ -31,7 +31,7 @@ function PlayerBoard(props) {
       .call({
         from: web3.currentProvider.selectedAddress,
       });
-    console.log(board);
+
     setGame({
       gameId: board.gameId,
       bet: web3.utils.fromWei(board.bet, "ether"),
@@ -61,7 +61,7 @@ function PlayerBoard(props) {
       alert("Please bid at most 90");
     }
     try {
-      const gas = (await contract.methods.placeBids(board).estimateGas()) * 2;
+      const gas = (await contract.methods.placeBids(board).estimateGas()) * 5;
       await contract.methods.placeBids(board).send({
         from: web3.currentProvider.selectedAddress,
         gas,
@@ -201,6 +201,7 @@ function PlayerBoard(props) {
           ),
           result: (
             <>
+              {console.log(currentPlayer.otherPlayerNextAction)}
               <Text as="kbd">{`You have ${
                 currentPlayer.otherPlayerNextAction === "draw"
                   ? "draw"

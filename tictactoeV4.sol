@@ -19,7 +19,10 @@ contract TicTacToe {
         NOT_JOINED,
         JOINED,
         BETTING,
-        REVEAL
+        REVEAL,
+        WON,
+        LOST,
+        DRAW
     }
 
     struct Game {
@@ -201,13 +204,19 @@ contract TicTacToe {
 
         if (playerOneCount > playerTwoCount) {
             payOutWinnings(payable(game.playerOne), address(this).balance);
+            game.playerOneStatus = PlayerStatus.WON;
+            game.playerTwoStatus = PlayerStatus.LOST;
             return "Player One Won";
         } else if (playerOneCount < playerTwoCount) {
+            game.playerOneStatus = PlayerStatus.LOST;
+            game.playerTwoStatus = PlayerStatus.WON;
             payOutWinnings(payable(game.playerTwo), address(this).balance);
             return "Player Two Won";
         } else {
             payOutWinnings(payable(game.playerOne), address(this).balance / 2);
             payOutWinnings(payable(game.playerTwo), address(this).balance / 2);
+            game.playerOneStatus = PlayerStatus.DRAW;
+            game.playerTwoStatus = PlayerStatus.DRAW;
             return "Draw";
         }
     }
