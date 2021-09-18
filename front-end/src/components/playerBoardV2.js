@@ -46,10 +46,11 @@ function PlayerBoard(props) {
   };
 
   const handleReveal = async () => {
-    const gas = (await contract.methods.evaluate().estimateGas()) * 2;
+    console.log("test");
+    // const gas = (await contract.methods.evaluate().estimateGas()) * 2;
     await contract.methods.evaluate().send({
       from: web3.currentProvider.selectedAddress,
-      gas,
+      gas: 150000,
     });
     getBoardFromChain();
   };
